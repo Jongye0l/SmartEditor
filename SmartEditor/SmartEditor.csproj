@@ -502,15 +502,6 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="LevelEvent\AngleEvent.cs" />
-        <Compile Include="LevelEvent\CustomEvent.cs" />
-        <Compile Include="LevelEvent\DecorationEvent.cs" />
-        <Compile Include="LevelEvent\EventData.cs" />
-        <Compile Include="LevelEvent\EventDisableList.cs" />
-        <Compile Include="LevelEvent\GenerateEventType.cs" />
-        <Compile Include="LevelEvent\EventDataPatch.cs" />
-        <Compile Include="LevelEvent\LevelEventPatch.cs" />
-        <Compile Include="LevelEvent\SettingEvent.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
