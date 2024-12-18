@@ -33,7 +33,10 @@ public class InsertTileUpdate {
         scrFloor cur = levelMaker.listFloors[floor + 1];
         cur.styleNum = 0;
         cur.SetTileColor(levelMaker.lm2.tilecolor);
-        if(cur.isportal) cur.SpawnPortalParticles();
+        if(cur.isportal) {
+            cur.SpawnPortalParticles();
+            levelMaker.listFloors[floor].UpdateIconSprite();
+        }
         for(int index = 0; index < levelMaker.listFloors.Count; ++index) {
             scrFloor listFloor = levelMaker.listFloors[index];
             listFloor.SetSortingOrder((100 + levelMaker.listFloors.Count - index) * 5);
@@ -70,7 +73,7 @@ public class InsertTileUpdate {
         if(prevFloorAngle == 999.0) prevFloor.midSpin = true;
         if(floor + 1 == floorAngles.Count) {
             prevFloor.isportal = false;
-            foreach(scrPortalParticles component in prevFloor.GetComponents<scrPortalParticles>()) UnityEngine.Object.Destroy(component.gameObject);
+            foreach(scrPortalParticles component in prevFloor.GetComponents<scrPortalParticles>()) UnityEngine.Object.DestroyImmediate(component.gameObject);
             curFloor.isportal = true;
             curFloor.levelnumber = Portal.EndOfLevel;
             curFloor.exitangle = curFloor.entryangle + 3.1415927410125732;
