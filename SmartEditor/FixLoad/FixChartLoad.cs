@@ -12,6 +12,7 @@ namespace SmartEditor.FixLoad;
 public class FixChartLoad : Feature {
 
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
+        Patcher.AddPatch(typeof(InsertTileUpdate));
     }
 
     [JAPatch(typeof(scnEditor), "CreateFloor", PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
