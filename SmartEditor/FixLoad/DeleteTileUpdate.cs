@@ -51,6 +51,7 @@ public class DeleteTileUpdate {
         levelMaker.listFloors.RemoveRange(floor, size);
         try {
             scrFloor prevFloor = levelMaker.listFloors[floor - 1];
+            prevFloor.floatDirection = removedFloor.floatDirection;
             if(floor == levelMaker.listFloors.Count) {
                 prevFloor.nextfloor = null;
                 prevFloor.isportal = true;
