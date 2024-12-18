@@ -502,6 +502,8 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="FixLoad\FixChartLoad.cs" />
+        <Compile Include="FixLoad\InsertTileUpdate.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
