@@ -6,13 +6,13 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
+using JALib.Tools;
 
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
 
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
-        Patcher.AddPatch(typeof(InsertTileUpdate));
     }
 
     [JAPatch(typeof(scnEditor), "CreateFloor", PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
@@ -40,5 +40,64 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
+    [JAPatch(typeof(scnEditor), "DeleteFloor", PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> DeleteFloor(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++)
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Ldarg_1);
+                codes[i - 2] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                codes[i - 1] = new CodeInstruction(OpCodes.Call, ((Delegate) DeleteTileUpdate.UpdateTile).Method);
+                codes.RemoveAt(i);
+            }
+        return codes;
+    }
 
+    [JAPatch(typeof(scnEditor), "DeleteMultiSelection", PatchType.Transpiler, false, Debug = true)]
+    internal static IEnumerable<CodeInstruction> DeleteMultiSelection(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+        List<CodeInstruction> codes = instructions.ToList();
+        LocalBuilder local = generator.DeclareLocal(typeof(int));
+        for(int i = 0; i < codes.Count; i++) {
+            CodeInstruction code = codes[i];
+            if(code.operand is MethodInfo { Name: "DeselectAllFloors" }) {
+                codes.InsertRange(i - 1, [
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldfld, SimpleReflect.Field(typeof(scnEditor), "selectedFloors")),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(List<scrFloor>).Method("get_Count")),
+                    new CodeInstruction(OpCodes.Stloc, local)
+                ]);
+                i += 4;
+            }
+            if(code.operand is MethodInfo { Name: "DeleteFloor" } && codes[i - 1].opcode == OpCodes.Ldc_I4_1) {
+                codes[i - 1].opcode = OpCodes.Ldc_I4_0;
+                codes.InsertRange(i + 2, [
+                    codes[i - 2].Clone(),
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Call, ((Delegate) DeleteTileUpdate.UpdateTile).Method)
+                ]);
+                break;
+            }
+        }
+        return codes;
+    }
+
+    public static void DrawEditor() {
+        scnEditor editor = scnEditor.instance;
+        editor.Invoke("DrawFloorOffsetLines");
+        editor.Invoke("DrawFloorNums");
+        editor.Invoke("DrawMultiPlanet");
+    }
+
+    [JAPatch(typeof(FixChartLoad), nameof(DrawEditor), PatchType.Transpiler, false)]
+    private static IEnumerable<CodeInstruction> DrawEditorTranspiler(IEnumerable<CodeInstruction> instructions) {
+        return [
+            new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(scnEditor), "instance")),
+            new CodeInstruction(OpCodes.Dup),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawFloorOffsetLines")),
+            new CodeInstruction(OpCodes.Dup),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawFloorNums")),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawMultiPlanet")),
+            new CodeInstruction(OpCodes.Ret)
+        ];
+    }
 }

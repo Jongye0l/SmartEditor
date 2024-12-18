@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using HarmonyLib;
-using JALib.Core.Patch;
-using JALib.Tools;
 using UnityEngine;
 
 namespace SmartEditor.FixLoad;
@@ -22,30 +18,10 @@ public class InsertTileUpdate {
             ApplyEventsToFloors(floor); //game.ApplyEventsToFloors(levelMaker.listFloors);
             levelMaker.DrawHolds();
             levelMaker.DrawMultiPlanet();
-            DrawEditor();
+            FixChartLoad.DrawEditor();
         } catch (Exception e) {
             Main.Instance.LogException(e);
         }
-    }
-
-    public static void DrawEditor() {
-        scnEditor editor = scnEditor.instance;
-        editor.Invoke("DrawFloorOffsetLines");
-        editor.Invoke("DrawFloorNums");
-        editor.Invoke("DrawMultiPlanet");
-    }
-
-    [JAPatch(typeof(InsertTileUpdate), "DrawEditor", PatchType.Transpiler, false)]
-    private static IEnumerable<CodeInstruction> DrawEditorTranspiler(IEnumerable<CodeInstruction> instructions) {
-        return [
-            new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(scnEditor), "instance")),
-            new CodeInstruction(OpCodes.Dup),
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawFloorOffsetLines")),
-            new CodeInstruction(OpCodes.Dup),
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawFloorNums")),
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawMultiPlanet")),
-            new CodeInstruction(OpCodes.Ret)
-        ];
     }
 
     public static void MakeLevel(int floor) {
@@ -62,7 +38,6 @@ public class InsertTileUpdate {
             scrFloor listFloor = levelMaker.listFloors[index];
             listFloor.SetSortingOrder((100 + levelMaker.listFloors.Count - index) * 5);
             if(index < floor) continue;
-            listFloor.startPos = listFloor.transform.position;
             listFloor.startRot = listFloor.transform.rotation.eulerAngles;
             listFloor.tweenRot = listFloor.startRot;
             listFloor.offsetPos = Vector3.zero;
@@ -77,7 +52,8 @@ public class InsertTileUpdate {
         float prevFloorAngle = floorAngles[floor];
         double prevAngle = prevFloorAngle == 999.0 ? prevFloor.entryangle : (-prevFloorAngle + 90.0) * (Math.PI / 180.0);
         prevFloor.exitangle = prevAngle;
-        GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.transform.position + scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius), Quaternion.identity);
+        Vector3 addedPos = scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius);
+        GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.transform.position + addedPos, Quaternion.identity);
         newFloorObj.transform.parent = floorsTransform;
         scrFloor curFloor = newFloorObj.GetComponent<scrFloor>();
         levelMaker.listFloors.Insert(floor + 1, curFloor);
@@ -86,6 +62,7 @@ public class InsertTileUpdate {
         curFloor.seqID = floor + 1;
         curFloor.floatDirection = prevFloorAngle;
         curFloor.entryangle = (prevAngle + 3.1415927410125732) % 6.2831854820251465;
+        curFloor.startPos = prevFloor.startPos + addedPos;
         if(prevFloor.midSpin) {
             prevFloor.midSpin = false;
             curFloor.midSpin = true;
@@ -103,16 +80,14 @@ public class InsertTileUpdate {
             curFloor.exitangle = nextAngle;
             scrFloor nextFloor = levelMaker.listFloors[floor + 2];
             curFloor.nextfloor = nextFloor;
-            Vector3 addedPos;
-            if(curFloor.midSpin) {
-                nextFloor.entryangle = (nextAngle + 3.1415927410125732) % 6.2831854820251465;
-                addedPos = prevFloor.transform.position - nextFloor.transform.position;
-            } else addedPos = curFloor.transform.position - prevFloor.transform.position;
+            if(curFloor.midSpin) nextFloor.entryangle = (nextAngle + 3.1415927410125732) % 6.2831854820251465;
+            else addedPos = curFloor.transform.position - prevFloor.transform.position;
             for(int i = floor + 2; i < levelMaker.listFloors.Count; i++) {
                 scrFloor fl = levelMaker.listFloors[i];
                 fl.seqID = i;
                 fl.editorNumText.letterText.text = i.ToString();
                 fl.transform.position += addedPos;
+                fl.startPos += addedPos;
             }
         }
     }
@@ -142,19 +117,21 @@ public class InsertTileUpdate {
         curFloor.UpdateAngle();
         curFloor.SetTrackStyle(prevFloor.initialTrackStyle, true);
         ffxChangeTrack prevFloorTrack = prevFloor.GetComponent<ffxChangeTrack>();
-        ffxChangeTrack curFloorTrack = curFloor.GetOrAddComponent<ffxChangeTrack>();
-        curFloorTrack.color1 = prevFloorTrack.color1;
-        curFloorTrack.color2 = prevFloorTrack.color2;
-        curFloorTrack.colorType = prevFloorTrack.colorType;
-        curFloorTrack.colorAnimDuration = prevFloorTrack.colorAnimDuration;
-        curFloorTrack.pulseType = prevFloorTrack.pulseType;
-        curFloorTrack.pulseLength = prevFloorTrack.pulseLength;
-        curFloorTrack.startOfColorChange = prevFloorTrack.startOfColorChange;
-        curFloorTrack.texture = prevFloorTrack.texture;
-        curFloorTrack.animationType = prevFloorTrack.animationType;
-        curFloorTrack.animationType2 = prevFloorTrack.animationType2;
-        curFloorTrack.tilesAhead = prevFloorTrack.tilesAhead;
-        curFloorTrack.tilesBehind = prevFloorTrack.tilesBehind;
+        if(prevFloorTrack) {
+            ffxChangeTrack curFloorTrack = curFloor.GetOrAddComponent<ffxChangeTrack>();
+            curFloorTrack.color1 = prevFloorTrack.color1;
+            curFloorTrack.color2 = prevFloorTrack.color2;
+            curFloorTrack.colorType = prevFloorTrack.colorType;
+            curFloorTrack.colorAnimDuration = prevFloorTrack.colorAnimDuration;
+            curFloorTrack.pulseType = prevFloorTrack.pulseType;
+            curFloorTrack.pulseLength = prevFloorTrack.pulseLength;
+            curFloorTrack.startOfColorChange = prevFloorTrack.startOfColorChange;
+            curFloorTrack.texture = prevFloorTrack.texture;
+            curFloorTrack.animationType = prevFloorTrack.animationType;
+            curFloorTrack.animationType2 = prevFloorTrack.animationType2;
+            curFloorTrack.tilesAhead = prevFloorTrack.tilesAhead;
+            curFloorTrack.tilesBehind = prevFloorTrack.tilesBehind;
+        }
         curFloor.glowMultiplier = prevFloor.glowMultiplier;
         curFloor.startScale = curFloor.transform.localScale = prevFloor.startScale;
         curFloor.SetOpacity(prevFloor.opacity);
