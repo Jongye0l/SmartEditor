@@ -31,7 +31,6 @@ public class DeleteTileUpdate {
         else InstantiateFloatFloors(floor, size); //levelMaker.InstantiateFloatFloors();
         levelMaker.lm2 ??= levelMaker.GetComponent<scrLevelMaker2>();
         scrFloor cur = levelMaker.listFloors[floor - 1];
-        if(cur.isportal) cur.SpawnPortalParticles();
         for(int index = 0; index < levelMaker.listFloors.Count; ++index) {
             scrFloor listFloor = levelMaker.listFloors[index];
             listFloor.SetSortingOrder((100 + levelMaker.listFloors.Count - index) * 5);
