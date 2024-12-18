@@ -12,7 +12,6 @@ using JALib.Tools;
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
-
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
     }
 

@@ -6,14 +6,12 @@ using Object = UnityEngine.Object;
 namespace SmartEditor.FixLoad;
 
 public class DeleteTileUpdate {
-    public static List<float> floorAngles;
 
     public static void UpdateTile(int floor, int size) {
         try {
             scnGame game = scnGame.instance;
             scrLevelMaker levelMaker = scrLevelMaker.instance;
             levelMaker.leveldata = game.levelData.pathData;
-            floorAngles = game.levelData.angleData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
             MakeLevel(floor, size); //game.levelMaker.MakeLevel();
             game.ApplyEventsToFloors(levelMaker.listFloors);
@@ -60,7 +58,7 @@ public class DeleteTileUpdate {
                 prevFloor.exitangle = prevFloor.entryangle + 3.1415927410125732;
             } else {
                 scrFloor curFloor = levelMaker.listFloors[floor];
-                float prevFloorAngle = floorAngles[floor - 1];
+                float prevFloorAngle = scnGame.instance.levelData.angleData[floor - 1];
                 prevFloor.midSpin = prevFloorAngle == 999.0;
                 prevFloor.exitangle = prevFloor.midSpin ? prevFloor.entryangle : (-prevFloorAngle + 90.0) * (Math.PI / 180.0);
                 prevFloor.nextfloor = curFloor;

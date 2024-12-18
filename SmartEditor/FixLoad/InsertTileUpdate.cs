@@ -5,14 +5,12 @@ using UnityEngine;
 namespace SmartEditor.FixLoad;
 
 public class InsertTileUpdate {
-    public static List<float> floorAngles;
 
     public static void UpdateTile(int floor) {
         try {
             scnGame game = scnGame.instance;
             scrLevelMaker levelMaker = scrLevelMaker.instance;
             levelMaker.leveldata = game.levelData.pathData;
-            floorAngles = game.levelData.angleData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
             MakeLevel(floor); //game.levelMaker.MakeLevel();
             ApplyEventsToFloors(floor); //game.ApplyEventsToFloors(levelMaker.listFloors);
@@ -50,6 +48,7 @@ public class InsertTileUpdate {
     public static void InstantiateFloatFloors(int floor) {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         Transform floorsTransform = GameObject.Find("Floors").transform;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         ADOBase.conductor.onBeats.Clear();
         scrFloor prevFloor = levelMaker.listFloors[floor];
         float prevFloorAngle = floorAngles[floor];
