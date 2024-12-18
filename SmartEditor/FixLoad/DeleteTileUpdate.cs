@@ -25,12 +25,15 @@ public class DeleteTileUpdate {
         }
     }
 
+    public static void UpdateTileSubsequent(int floor) => UpdateTile(floor + 1, scrLevelMaker.instance.listFloors.Count - floor - 1);
+
+    public static void UpdateTilePreceding() => UpdateTile(1, scnEditor.instance.selectedFloors[0].seqID);
+
     public static void MakeLevel(int floor, int size) {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         if(levelMaker.isOldLevel) levelMaker.InstantiateStringFloors();
         else InstantiateFloatFloors(floor, size); //levelMaker.InstantiateFloatFloors();
         levelMaker.lm2 ??= levelMaker.GetComponent<scrLevelMaker2>();
-        scrFloor cur = levelMaker.listFloors[floor - 1];
         for(int index = 0; index < levelMaker.listFloors.Count; ++index) {
             scrFloor listFloor = levelMaker.listFloors[index];
             listFloor.SetSortingOrder((100 + levelMaker.listFloors.Count - index) * 5);

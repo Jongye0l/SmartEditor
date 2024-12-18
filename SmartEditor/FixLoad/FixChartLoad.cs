@@ -81,6 +81,36 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
+    [JAPatch(typeof(scnEditor), "DeleteSubsequentFloors", PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> DeleteSubsequentFloors(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "DeleteFloor" } && codes[i - 1].opcode == OpCodes.Ldc_I4_1) {
+                codes[i - 1].opcode = OpCodes.Ldc_I4_0;
+                codes.InsertRange(i + 2, [
+                    codes[i - 4].Clone(),
+                    new CodeInstruction(OpCodes.Call, ((Delegate) DeleteTileUpdate.UpdateTileSubsequent).Method)
+                ]);
+                break;
+            }
+        }
+        return codes;
+    }
+
+
+    [JAPatch(typeof(scnEditor), "DeletePrecedingFloors", PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> DeletePrecedingFloors(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "DeleteFloor" } && codes[i - 1].opcode == OpCodes.Ldc_I4_1) {
+                codes[i - 1].opcode = OpCodes.Ldc_I4_0;
+                codes.Insert(i + 2, new CodeInstruction(OpCodes.Call, ((Delegate) DeleteTileUpdate.UpdateTilePreceding).Method));
+                break;
+            }
+        }
+        return codes;
+    }
+
     public static void DrawEditor() {
         scnEditor editor = scnEditor.instance;
         editor.Invoke("DrawFloorOffsetLines");
