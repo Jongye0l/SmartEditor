@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using ADOFAI.Editor.Actions;
 using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
@@ -129,5 +130,17 @@ public class FixChartLoad : Feature {
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawMultiPlanet")),
             new CodeInstruction(OpCodes.Ret)
         ];
+    }
+
+    [JAPatch(typeof(ToggleFloorNumsEditorAction), "Execute", PatchType.Transpiler, false)]
+    private static IEnumerable<CodeInstruction> ToggleFloorNumsEditorActionTranspiler(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i].operand = typeof(scnEditor).Method("DrawFloorNums");
+                codes.RemoveRange(i - 2, 2);
+            }
+        }
+        return codes;
     }
 }
