@@ -47,7 +47,6 @@ public class DeleteTileUpdate {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         ADOBase.conductor.onBeats.Clear();
         scrFloor removedFloor = levelMaker.listFloors[floor + size - 1];
-        Main.Instance.Log(removedFloor.startPos + " " + removedFloor.transform.position);
         for(int i = 0; i < size - 1; i++) Object.DestroyImmediate(levelMaker.listFloors[floor + i].gameObject);
         levelMaker.listFloors.RemoveRange(floor, size);
         try {

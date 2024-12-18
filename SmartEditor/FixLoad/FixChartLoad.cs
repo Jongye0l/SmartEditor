@@ -53,7 +53,7 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
-    [JAPatch(typeof(scnEditor), "DeleteMultiSelection", PatchType.Transpiler, false, Debug = true)]
+    [JAPatch(typeof(scnEditor), "DeleteMultiSelection", PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> DeleteMultiSelection(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
         List<CodeInstruction> codes = instructions.ToList();
         LocalBuilder local = generator.DeclareLocal(typeof(int));
