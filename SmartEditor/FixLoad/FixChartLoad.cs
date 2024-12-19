@@ -170,4 +170,16 @@ public class FixChartLoad : Feature {
         }
         return codes;
     }
+
+    [JAPatch(typeof(scnEditor), nameof(PasteFloors), PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> PasteFloors(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Call, ((Delegate) PasteTileUpdate.UpdateTile).Method);
+                codes.RemoveRange(i - 2, 3);
+            }
+        }
+        return codes;
+    }
 }
