@@ -182,4 +182,28 @@ public class FixChartLoad : Feature {
         }
         return codes;
     }
+
+    [JAPatch(typeof(scnEditor), nameof(RemoveEventAtSelected), PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> RemoveEventAtSelected(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Call, ((Delegate) RemoveEventAtSelectedUpdate).Method);
+                codes.RemoveRange(i - 2, 3);
+            }
+        }
+        return codes;
+    }
+
+    private static void RemoveEventAtSelectedUpdate() {
+        try {
+            scrLevelMaker levelMaker = scrLevelMaker.instance;
+            scnGame.instance.ApplyEventsToFloors(levelMaker.listFloors);
+            levelMaker.DrawHolds();
+            levelMaker.DrawMultiPlanet();
+            DrawEditor();
+        } catch (Exception e) {
+            Main.Instance.LogException(e);
+        }
+    }
 }
