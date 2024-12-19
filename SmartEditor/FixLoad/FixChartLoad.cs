@@ -158,7 +158,7 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
-    [JAPatch(typeof(scnEditor), nameof(FlipSelection), PatchType.Transpiler, false, Debug = true)]
+    [JAPatch(typeof(scnEditor), nameof(FlipSelection), PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> FlipSelection(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
