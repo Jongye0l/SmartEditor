@@ -15,7 +15,7 @@ public class FixChartLoad : Feature {
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
     }
 
-    [JAPatch(typeof(scnEditor), "CreateFloor", PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
+    [JAPatch(typeof(scnEditor), nameof(CreateFloor), PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
     internal static IEnumerable<CodeInstruction> CreateFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++)
@@ -40,7 +40,7 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
-    [JAPatch(typeof(scnEditor), "DeleteFloor", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(DeleteFloor), PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> DeleteFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++)
@@ -53,7 +53,7 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
-    [JAPatch(typeof(scnEditor), "DeleteMultiSelection", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(DeleteMultiSelection), PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> DeleteMultiSelection(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
         List<CodeInstruction> codes = instructions.ToList();
         LocalBuilder local = generator.DeclareLocal(typeof(int));
@@ -81,7 +81,7 @@ public class FixChartLoad : Feature {
         return codes;
     }
 
-    [JAPatch(typeof(scnEditor), "DeleteSubsequentFloors", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(DeleteSubsequentFloors), PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> DeleteSubsequentFloors(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
@@ -98,7 +98,7 @@ public class FixChartLoad : Feature {
     }
 
 
-    [JAPatch(typeof(scnEditor), "DeletePrecedingFloors", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(DeletePrecedingFloors), PatchType.Transpiler, false)]
     internal static IEnumerable<CodeInstruction> DeletePrecedingFloors(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
@@ -138,6 +138,34 @@ public class FixChartLoad : Feature {
             if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
                 codes[i].operand = typeof(scnEditor).Method("DrawFloorNums");
                 codes.RemoveRange(i - 2, 2);
+            }
+        }
+        return codes;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(FlipFloor), PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> FlipFloor(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Ldarg_1);
+                codes[i - 2] = new CodeInstruction(OpCodes.Ldfld, SimpleReflect.Field(typeof(scrFloor), "seqID"));
+                codes[i - 1] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                codes[i++] = new CodeInstruction(OpCodes.Ldarg_2);
+                codes.Insert(i, new CodeInstruction(OpCodes.Call, ((Delegate) FlipTileUpdate.UpdateTile).Method));
+            }
+        }
+        return codes;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(FlipSelection), PatchType.Transpiler, false, Debug = true)]
+    internal static IEnumerable<CodeInstruction> FlipSelection(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Ldarg_1) { labels = codes[i - 3].labels };
+                codes[i - 2] = new CodeInstruction(OpCodes.Call, ((Delegate) FlipTileUpdate.UpdateTileSelection).Method);
+                codes.RemoveRange(i - 1, 2);
             }
         }
         return codes;

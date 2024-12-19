@@ -504,6 +504,7 @@
     <ItemGroup>
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />
+        <Compile Include="FixLoad\FlipTileUpdate.cs" />
         <Compile Include="FixLoad\InsertTileUpdate.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
