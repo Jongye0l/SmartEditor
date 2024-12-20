@@ -54,6 +54,7 @@ public class FlipTileUpdate {
             scrFloor curFloor = levelMaker.listFloors[floor + i];
             curFloor.floatDirection = prevFloorAngle;
             curFloor.entryangle = (prevAngle + 3.1415927410125732) % 6.2831854820251465;
+            if(curFloor.midSpin) curFloor.exitangle = curFloor.entryangle;
             prevFloor = curFloor;
         }
         if(prevFloor.isportal) prevFloor.exitangle = prevFloor.entryangle + 3.1415927410125732;
@@ -68,7 +69,10 @@ public class FlipTileUpdate {
                 Vector3 added = fl.transform.position - fl.startPos;
                 fl.startPos = horizontal ? new Vector3(mid - fl.startPos.x, fl.startPos.y, fl.startPos.z) : new Vector3(fl.startPos.x, mid - fl.startPos.y, fl.startPos.z);
                 fl.transform.position = fl.startPos + added;
-                if(last) change = fl.startPos - change;
+                if(last) {
+                    change = fl.startPos - change;
+                    if(fl.midSpin) change = levelMaker.listFloors[i - 1].startPos - fl.nextfloor.startPos;
+                }
             } else {
                 fl.startPos += change;
                 fl.transform.position += change;
