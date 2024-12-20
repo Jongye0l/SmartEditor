@@ -216,7 +216,10 @@ public class FixChartLoad : Feature {
                 codes[i - 2] = new CodeInstruction(OpCodes.Ldfld, SimpleReflect.Field(typeof(scrFloor), "seqID"));
                 codes[i - 1] = new CodeInstruction(OpCodes.Ldc_I4_1);
                 codes[i++] = new CodeInstruction(OpCodes.Ldarg_2);
-                codes.Insert(i, new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTile).Method));
+                codes.InsertRange(i, [
+                    new CodeInstruction(OpCodes.Ldc_I4_0),
+                    new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTile).Method)
+                ]);
             }
         }
         return codes;
@@ -228,8 +231,41 @@ public class FixChartLoad : Feature {
         for(int i = 0; i < codes.Count; i++) {
             if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
                 codes[i - 3] = new CodeInstruction(OpCodes.Ldarg_1) { labels = codes[i - 3].labels };
-                codes[i - 2] = new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTileSelection).Method);
-                codes.RemoveRange(i - 1, 2);
+                codes[i - 2] = new CodeInstruction(OpCodes.Ldc_I4_0);
+                codes[i - 1] = new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTileSelection).Method);
+                codes.RemoveAt(i);
+            }
+        }
+        return codes;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(RotateFloor180), PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> RotateFloor180(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Ldarg_1);
+                codes[i - 2] = new CodeInstruction(OpCodes.Ldfld, SimpleReflect.Field(typeof(scrFloor), "seqID"));
+                codes[i - 1] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                codes[i++] = new CodeInstruction(OpCodes.Ldc_I4_0);
+                codes.InsertRange(i, [
+                    new CodeInstruction(OpCodes.Ldc_I4_1),
+                    new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTile).Method)
+                ]);
+            }
+        }
+        return codes;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(RotateSelection180), PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> RotateSelection180(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+                codes[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_0) { labels = codes[i - 3].labels };
+                codes[i - 2] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                codes[i - 1] = new CodeInstruction(OpCodes.Call, ((Delegate) RotateTileUpdate.UpdateTileSelection).Method);
+                codes.RemoveAt(i);
             }
         }
         return codes;
