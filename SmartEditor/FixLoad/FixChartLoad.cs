@@ -8,11 +8,17 @@ using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
+using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
+    }
+
+    protected override void OnGUI() {
+        if(!scnEditor.instance) GUILayout.Label("Open the editor to use this feature.");
+        else if(GUILayout.Button("Reload Chart")) scnEditor.instance.RemakePath();
     }
 
     [JAPatch(typeof(scnEditor), nameof(CreateFloor), PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
