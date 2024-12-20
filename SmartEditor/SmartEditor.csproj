@@ -507,6 +507,7 @@
         <Compile Include="FixLoad\FlipTileUpdate.cs" />
         <Compile Include="FixLoad\InsertTileUpdate.cs" />
         <Compile Include="FixLoad\PasteTileUpdate.cs" />
+        <Compile Include="FixLoad\RotateTileUpdate.cs" />
         <Compile Include="Main.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
