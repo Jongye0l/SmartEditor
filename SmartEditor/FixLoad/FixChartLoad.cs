@@ -120,7 +120,6 @@ public class FixChartLoad : Feature {
     public static void DrawEditor() {
         scnEditor editor = scnEditor.instance;
         editor.Invoke("DrawFloorOffsetLines");
-        editor.Invoke("DrawFloorNums");
         editor.Invoke("DrawMultiPlanet");
     }
 
