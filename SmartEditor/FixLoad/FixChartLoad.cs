@@ -129,7 +129,6 @@ public class FixChartLoad : Feature {
             new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(scnEditor), "instance")),
             new CodeInstruction(OpCodes.Dup),
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawFloorOffsetLines")),
-            new CodeInstruction(OpCodes.Dup),
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(scnEditor), "DrawMultiPlanet")),
             new CodeInstruction(OpCodes.Ret)
         ];
