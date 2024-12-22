@@ -87,7 +87,10 @@ public class SaveStatePatch {
 
     [JAPatch(typeof(LevelEvent), "[].set", PatchType.Prefix, false)]
     public static void Set(LevelEvent __instance, string key, object value) {
-        if(currentState != null) (changedEventValues[new EventKey(__instance, key)] ??= new EventValue(__instance[key])).newValue = value;
+        if(currentState == null) return;
+        EventKey eventKey = new(__instance, key);
+        if(!changedEventValues.TryGetValue(eventKey, out EventValue eventValue)) changedEventValues[eventKey] = eventValue = new EventValue(__instance[key]);
+        eventValue.newValue = value;
     }
 
     [JAPatch(typeof(List<float>), nameof(Add), PatchType.Postfix, false, ArgumentTypesType = [typeof(float)])]
