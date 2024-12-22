@@ -502,6 +502,11 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="FixLoad\CustomSaveState\ChangedEventCache.cs" />
+        <Compile Include="FixLoad\CustomSaveState\ChangedFloorCache.cs" />
+        <Compile Include="FixLoad\CustomSaveState\LevelState.cs" />
+        <Compile Include="FixLoad\CustomSaveState\SaveStatePatch.cs" />
+        <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />
         <Compile Include="FixLoad\FlipTileUpdate.cs" />
