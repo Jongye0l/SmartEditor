@@ -33,6 +33,7 @@ public class InsertTileUpdate {
         cur.SetTileColor(levelMaker.lm2.tilecolor);
         if(cur.isportal) {
             cur.SpawnPortalParticles();
+            levelMaker.listFloors[floor - 1].UpdateIconSprite();
             levelMaker.listFloors[floor].UpdateIconSprite();
         }
         for(int index = 0; index < levelMaker.listFloors.Count; ++index) {
