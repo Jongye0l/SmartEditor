@@ -195,6 +195,7 @@ public class UndoTileUpdate {
         curFloor.rotationOffset = prevFloor.rotationOffset;
         curFloor.SetRotation((curFloor.tweenRot - curFloor.startRot).z);
         curFloor.stickToFloor = prevFloor.stickToFloor;
+        curFloor.radiusScale = prevFloor.radiusScale;
     }
 
     public class ApplyEvent {
