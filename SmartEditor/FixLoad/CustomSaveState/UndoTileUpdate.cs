@@ -93,6 +93,7 @@ public class UndoTileUpdate {
                         applyEvent.reloadIcons.Add(cur);
                     }
                 }
+                cur.radiusScale = prev.radiusScale;
                 applyEvent.onlyReloadFloors.Add(cur);
             } else {
                 scrFloor prev = levelMaker.listFloors[cache.index];
@@ -138,15 +139,17 @@ public class UndoTileUpdate {
         Vector3 addedPos = Vector3.zero;
         for(int i = 0; i < levelMaker.listFloors.Count; i++) {
             scrFloor fl = levelMaker.listFloors[i];
+            Vector3 newPos = Vector3.zero;
             if(updatedFloors.Contains(fl)) {
                 scrFloor prev = levelMaker.listFloors[i - 1];
                 addedPos = fl.startPos;
-                Vector3 newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
+                newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
                 fl.startPos = prev.startPos + newPos;
                 addedPos = fl.startPos - addedPos;
+                newPos *= prev.radiusScale - 1;
             } else fl.startPos += addedPos;
             if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
-            else fl.transform.position += addedPos;
+            else fl.transform.position += addedPos + newPos;
         }
     }
 
@@ -195,7 +198,6 @@ public class UndoTileUpdate {
         curFloor.rotationOffset = prevFloor.rotationOffset;
         curFloor.SetRotation((curFloor.tweenRot - curFloor.startRot).z);
         curFloor.stickToFloor = prevFloor.stickToFloor;
-        curFloor.radiusScale = prevFloor.radiusScale;
     }
 
     public class ApplyEvent {
