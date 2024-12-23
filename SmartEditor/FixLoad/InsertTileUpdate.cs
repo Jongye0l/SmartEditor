@@ -55,7 +55,8 @@ public class InsertTileUpdate {
         float prevFloorAngle = floorAngles[floor];
         double prevAngle = prevFloorAngle == 999.0 ? prevFloor.entryangle : (-prevFloorAngle + 90.0) * (Math.PI / 180.0);
         prevFloor.exitangle = prevAngle;
-        Vector3 addedPos = scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius) * prevFloor.radiusScale;
+        Vector3 startAddedPos = scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius);
+        Vector3 addedPos = startAddedPos * prevFloor.radiusScale;
         GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.transform.position + addedPos, Quaternion.identity);
         newFloorObj.transform.parent = floorsTransform;
         scrFloor curFloor = newFloorObj.GetComponent<scrFloor>();
@@ -65,7 +66,7 @@ public class InsertTileUpdate {
         curFloor.seqID = floor + 1;
         curFloor.floatDirection = prevFloorAngle;
         curFloor.entryangle = (prevAngle + 3.1415927410125732) % 6.2831854820251465;
-        curFloor.startPos = prevFloor.startPos + addedPos;
+        curFloor.startPos = prevFloor.startPos + startAddedPos;
         if(prevFloor.midSpin) {
             prevFloor.midSpin = false;
             curFloor.midSpin = true;
@@ -84,13 +85,16 @@ public class InsertTileUpdate {
             scrFloor nextFloor = levelMaker.listFloors[floor + 2];
             curFloor.nextfloor = nextFloor;
             if(curFloor.midSpin) nextFloor.entryangle = (nextAngle + 3.1415927410125732) % 6.2831854820251465;
-            else addedPos = curFloor.transform.position - prevFloor.transform.position;
+            else {
+                addedPos = curFloor.transform.position - prevFloor.transform.position;
+                startAddedPos = curFloor.startPos - prevFloor.startPos;
+            }
             for(int i = floor + 2; i < levelMaker.listFloors.Count; i++) {
                 scrFloor fl = levelMaker.listFloors[i];
                 fl.seqID = i;
                 fl.editorNumText.letterText.text = i.ToString();
                 fl.transform.position += addedPos;
-                fl.startPos += addedPos;
+                fl.startPos += startAddedPos;
             }
         }
     }

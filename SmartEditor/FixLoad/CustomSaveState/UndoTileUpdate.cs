@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TinyJson;
 using UnityEngine;
 
 namespace SmartEditor.FixLoad.CustomSaveState;
@@ -12,8 +11,7 @@ public class UndoTileUpdate {
             scrLevelMaker levelMaker = scrLevelMaker.instance;
             levelMaker.leveldata = game.levelData.pathData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
-            ApplyEvent applyEvent = new();
-            applyEvent.reloadEvents = levelState.changedEvents.Length > 0;
+            ApplyEvent applyEvent = new() { reloadEvents = levelState.changedEvents.Length > 0 };
             MakeLevel(levelState, applyEvent, redo); //game.levelMaker.MakeLevel();
             if(applyEvent.reloadEvents) game.ApplyEventsToFloors(levelMaker.listFloors);
             else foreach(scrFloor floor in applyEvent.onlyReloadFloors) ApplyEventsToFloors(floor);
