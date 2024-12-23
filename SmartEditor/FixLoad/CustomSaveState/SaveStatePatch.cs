@@ -20,7 +20,7 @@ public class SaveStatePatch {
     public static List<LevelState> redoStates = [];
     public static LevelState currentState;
 
-    [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false, Debug = true)]
+    [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false)]
     public static void SaveState(scnEditor __instance, bool clearRedo = false, bool dataHasChanged = true) {
         scnEditor editor = __instance;
         if(editor.changingState != 0 || !editor.initialized) return;

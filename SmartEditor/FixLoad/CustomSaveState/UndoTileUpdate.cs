@@ -135,19 +135,26 @@ public class UndoTileUpdate {
             }
         }
         Vector3 addedPos = Vector3.zero;
+        Vector3 addedTransformPos = Vector3.zero;
         for(int i = 0; i < levelMaker.listFloors.Count; i++) {
             scrFloor fl = levelMaker.listFloors[i];
-            Vector3 newPos = Vector3.zero;
             if(updatedFloors.Contains(fl)) {
                 scrFloor prev = levelMaker.listFloors[i - 1];
                 addedPos = fl.startPos;
-                newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
+                Vector3 newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
                 fl.startPos = prev.startPos + newPos;
                 addedPos = fl.startPos - addedPos;
-                newPos *= prev.radiusScale - 1;
-            } else fl.startPos += addedPos;
-            if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
-            else fl.transform.position += addedPos + newPos;
+                if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
+                else {
+                    addedTransformPos = fl.transform.position;
+                    fl.transform.position = prev.transform.position + newPos * fl.radiusScale;
+                    addedTransformPos = fl.transform.position - addedTransformPos;
+                }
+            } else {
+                fl.startPos += addedPos;
+                if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
+                else fl.transform.position += addedTransformPos;
+            }
         }
     }
 
