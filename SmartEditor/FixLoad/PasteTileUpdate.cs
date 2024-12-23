@@ -91,7 +91,7 @@ public class PasteTileUpdate {
             float nextFloorAngle = floorAngles[floor + size];
             double nextAngle = prevFloor.midSpin ? prevFloor.entryangle : (-nextFloorAngle + 90.0) * (Math.PI / 180.0);
             prevFloor.exitangle = nextAngle;
-            curFloor = levelMaker.listFloors[floor + size];
+            curFloor = levelMaker.listFloors[floor + size + 1];
             prevFloor.nextfloor = curFloor;
             if(curFloor.midSpin) curFloor.entryangle = (nextAngle + 3.1415927410125732) % 6.2831854820251465;
             for(int i = floor + size + 1; i < levelMaker.listFloors.Count; i++) {
