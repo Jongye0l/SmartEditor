@@ -194,7 +194,7 @@ public class SaveStatePatch {
                     }
                 }
                 levelState.selectedFloors = currentSelectedFloors;
-                if(selectedFloors.Length == 1) editor.levelEventsPanel.ShowPanel(levelState.floorEventType, levelState.floorEventTypeIndex);
+                if(selectedFloors is { Length: 1 }) editor.levelEventsPanel.ShowPanel(levelState.floorEventType, levelState.floorEventTypeIndex);
                 editor.settingsPanel.ShowPanel(levelState.settingsEventType);
                 if(editor.particleEditor.gameObject.activeSelf && editor.particleEditor.SelectedEvent != null) {
                     if(editor.selectedDecorations.Count == 0) editor.HideParticleEditor();
