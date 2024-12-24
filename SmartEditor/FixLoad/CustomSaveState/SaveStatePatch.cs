@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using ADOFAI;
 using ADOFAI.Editor.ParticleEditor;
+using HarmonyLib;
 using JALib.Core.Patch;
 using JALib.Tools;
 using UnityEngine;
@@ -11,7 +13,7 @@ using UnityEngine;
 namespace SmartEditor.FixLoad.CustomSaveState;
 
 public class SaveStatePatch {
-    private static FieldInfo _saveStateLastFrame = typeof(scnEditor).Field("saveStateLastFrame");
+    private static FieldInfo _saveStateLastFrame = SimpleReflect.Field(typeof(scnEditor), "saveStateLastFrame");
     private static MethodInfo _unsavedChanges = typeof(scnEditor).Setter("unsavedChanges");
     public static List<ChangedEventCache> changedEvents = [];
     public static List<ChangedFloorCache> changedFloors = [];
@@ -108,6 +110,25 @@ public class SaveStatePatch {
         if(currentState == null || __instance != scnEditor.instance.levelData.angleData) return;
         changedFloors.Add(new ChangedFloorCache(ChangedFloorCache.Action.Remove, __instance[index], index));
         foreach(ChangedEventCache @event in changedEvents) if(@event.action == ChangedEventCache.Action.Remove && @event.@event.floor >= index) @event.@event.floor--;
+    }
+
+    [JAPatch(typeof(scnEditor), "PasteEvents", PatchType.Transpiler, false)]
+    internal static IEnumerable<CodeInstruction> FixAddEvent(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            CodeInstruction code = codes[i];
+            if(code.opcode == OpCodes.Callvirt && typeof(EventsArray<LevelEvent>).Method(nameof(Add)) == (MethodInfo) code.operand) {
+                LocalBuilder local = generator.DeclareLocal(typeof(LevelEvent));
+                codes[i] = new CodeInstruction(OpCodes.Stloc, local) { labels = code.labels };
+                codes.InsertRange(i + 1, [
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(List<LevelEvent>).Method(nameof(Add))),
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Call, ((Action<LevelEvent>) Add).Method)
+                ]);
+            }
+        }
+        return codes;
     }
 
     [JAPatch(typeof(scnEditor), nameof(UndoOrRedo), PatchType.Replace, false)]

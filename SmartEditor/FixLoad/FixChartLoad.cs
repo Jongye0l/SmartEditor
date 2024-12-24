@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using ADOFAI;
 using ADOFAI.Editor.Actions;
 using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
+using SmartEditor.FixLoad.CustomSaveState;
 using UnityEngine;
 
 namespace SmartEditor.FixLoad;
@@ -176,12 +178,22 @@ public class FixChartLoad : Feature {
     }
 
     [JAPatch(typeof(scnEditor), nameof(PasteFloors), PatchType.Transpiler, false)]
-    internal static IEnumerable<CodeInstruction> PasteFloors(IEnumerable<CodeInstruction> instructions) {
+    internal static IEnumerable<CodeInstruction> PasteFloors(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
-            if(codes[i].operand is MethodInfo { Name: "RemakePath" }) {
+            CodeInstruction code = codes[i];
+            if(code.operand is MethodInfo { Name: "RemakePath" }) {
                 codes[i - 3] = new CodeInstruction(OpCodes.Call, ((Delegate) PasteTileUpdate.UpdateTile).Method);
                 codes.RemoveRange(i - 2, 3);
+            } else if(code.opcode == OpCodes.Callvirt && typeof(EventsArray<LevelEvent>).Method(nameof(SaveStatePatch.Add)) == (MethodInfo) code.operand) {
+                LocalBuilder local = generator.DeclareLocal(typeof(LevelEvent));
+                codes[i] = new CodeInstruction(OpCodes.Stloc, local) { labels = code.labels };
+                codes.InsertRange(i + 1, [
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Callvirt, typeof(List<LevelEvent>).Method(nameof(SaveStatePatch.Add))),
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Call, ((Action<LevelEvent>) SaveStatePatch.Add).Method)
+                ]);
             }
         }
         return codes;
