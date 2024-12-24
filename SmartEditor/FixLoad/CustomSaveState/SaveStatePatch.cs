@@ -100,14 +100,14 @@ public class SaveStatePatch {
     public static void Insert(List<float> __instance, int index, float item) {
         if(currentState == null || __instance != scnEditor.instance.levelData.angleData) return;
         changedFloors.Add(new ChangedFloorCache(ChangedFloorCache.Action.Add, item, index));
-        foreach(ChangedEventCache @event in changedEvents) if(@event.@event.floor >= index) @event.@event.floor++;
+        foreach(ChangedEventCache @event in changedEvents) if(@event.action == ChangedEventCache.Action.Remove && @event.@event.floor >= index) @event.@event.floor++;
     }
 
     [JAPatch(typeof(List<float>), nameof(RemoveAt), PatchType.Prefix, false, ArgumentTypesType = [typeof(int)])]
     public static void RemoveAt(List<float> __instance, int index) {
         if(currentState == null || __instance != scnEditor.instance.levelData.angleData) return;
         changedFloors.Add(new ChangedFloorCache(ChangedFloorCache.Action.Remove, __instance[index], index));
-        foreach(ChangedEventCache @event in changedEvents) if(@event.@event.floor >= index) @event.@event.floor--;
+        foreach(ChangedEventCache @event in changedEvents) if(@event.action == ChangedEventCache.Action.Remove && @event.@event.floor >= index) @event.@event.floor--;
     }
 
     [JAPatch(typeof(scnEditor), nameof(UndoOrRedo), PatchType.Replace, false)]
