@@ -66,7 +66,7 @@ public class ScopePatch {
         return list;
     }
 
-    [JAPatch(typeof(scnEditor), "DeselectFloors", PatchType.Transpiler, false, Debug = true)]
+    [JAPatch(typeof(scnEditor), "DeselectFloors", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), nameof(SelectFloor), PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "MultiSelectFloors", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> SelectFloor(IEnumerable<CodeInstruction> instructions) {
