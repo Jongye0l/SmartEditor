@@ -90,7 +90,7 @@ public class ScopePatch {
         for(int i = 0; i < list.Count; i++) {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
-                list[i - 4] = new CodeInstruction(OpCodes.Newobj, typeof(RemoveEventsScope).Constructor([])) { labels = list[i - 4].labels };
+                list[i - 4] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
                 list[i - 3] = new CodeInstruction(OpCodes.Stloc, local);
                 list[i - 2] = new CodeInstruction(OpCodes.Ldloc, local);
                 list.RemoveRange(i - 1, 2);
@@ -98,7 +98,7 @@ public class ScopePatch {
                 list.InsertRange(i + 1, [
                     new CodeInstruction(OpCodes.Ldloc, local),
                     list[i - 1],
-                    new CodeInstruction(OpCodes.Call, typeof(RemoveEventsScope).Method("SetEvents"))
+                    new CodeInstruction(OpCodes.Call, typeof(EventsChangeScope).Method("SetEvents"))
                 ]);
             }
         }
@@ -112,7 +112,43 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i - 4].opcode = OpCodes.Ldarg_1;
-                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(RemoveEventsScope).Constructor(typeof(List<LevelEvent>)));
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(List<LevelEvent>)));
+                list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(AddEventAtSelected), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> AddEventAtSelected(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+        List<CodeInstruction> list = instructions.ToList();
+        LocalBuilder local = generator.DeclareLocal(typeof(EventsChangeScope));
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
+                list[i - 3] = new CodeInstruction(OpCodes.Stloc, local);
+                list[i - 2] = new CodeInstruction(OpCodes.Ldloc, local);
+                list.RemoveRange(i - 1, 2);
+            } else if(code.operand is MethodInfo { Name: "RemoveEvent" }) {
+                list.InsertRange(i + 1, [
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    list[i - 2],
+                    new CodeInstruction(OpCodes.Call, typeof(EventsChangeScope).Method("DeleteEvents"))
+                ]);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(AddDecoration), PatchType.Transpiler, false, ArgumentTypesType = [typeof(LevelEvent), typeof(int)])]
+    public static IEnumerable<CodeInstruction> AddDecoration(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent)));
                 list.RemoveRange(i - 3, 3);
             }
         }
