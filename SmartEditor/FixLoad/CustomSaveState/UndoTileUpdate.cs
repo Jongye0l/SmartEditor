@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SmartEditor.FixLoad.CustomSaveState;
 
 public class UndoTileUpdate {
-    public static void UpdateTile(LevelState levelState, bool redo) {
+    public static void UpdateTile(DefaultLevelState levelState, bool redo) {
         try {
             scnGame game = scnGame.instance;
             scrLevelMaker levelMaker = scrLevelMaker.instance;
@@ -23,7 +23,7 @@ public class UndoTileUpdate {
         }
     }
 
-    public static void MakeLevel(LevelState levelState, ApplyEvent applyEvent, bool redo) {
+    public static void MakeLevel(DefaultLevelState levelState, ApplyEvent applyEvent, bool redo) {
         if(levelState.changedFloors.Length == 0) return;
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         if(levelMaker.isOldLevel) levelMaker.InstantiateStringFloors();
@@ -46,7 +46,7 @@ public class UndoTileUpdate {
         if(!applyEvent.onlyReloadFloors.Contains(floor)) floor.UpdateAngle();
     }
 
-    public static void InstantiateFloatFloors(LevelState levelState, ApplyEvent applyEvent, bool redo) {
+    public static void InstantiateFloatFloors(DefaultLevelState levelState, ApplyEvent applyEvent, bool redo) {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         Transform floorsTransform = GameObject.Find("Floors").transform;
         ADOBase.conductor.onBeats.Clear();

@@ -10,13 +10,14 @@ using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
 using SmartEditor.FixLoad.CustomSaveState;
+using SmartEditor.FixLoad.CustomSaveState.Scope;
 using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
-        Patcher.AddPatch(typeof(FixChartLoad).Assembly, "SmartEditor.FixLoad.CustomSaveState");
+        Patcher.AddPatch(typeof(SaveStatePatch)).AddPatch(typeof(ScopePatch));
     }
 
     protected override void OnGUI() {

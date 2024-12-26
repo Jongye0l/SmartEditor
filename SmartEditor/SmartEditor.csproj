@@ -504,8 +504,12 @@
     <ItemGroup>
         <Compile Include="FixLoad\CustomSaveState\ChangedEventCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedFloorCache.cs" />
+        <Compile Include="FixLoad\CustomSaveState\FixPrivateMethod.cs" />
         <Compile Include="FixLoad\CustomSaveState\LevelState.cs" />
         <Compile Include="FixLoad\CustomSaveState\SaveStatePatch.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\CreateFloorScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\CustomSaveStateScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\ScopePatch.cs" />
         <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />

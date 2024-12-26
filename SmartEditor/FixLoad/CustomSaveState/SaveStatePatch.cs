@@ -20,7 +20,7 @@ public class SaveStatePatch {
     public static Dictionary<EventKey, EventValue> changedEventValues = new();
     public static List<LevelState> undoStates = new(100);
     public static List<LevelState> redoStates = [];
-    public static LevelState currentState;
+    public static DefaultLevelState currentState;
 
     [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false)]
     public static void SaveState(scnEditor __instance, bool clearRedo = false, bool dataHasChanged = true) {
@@ -40,7 +40,7 @@ public class SaveStatePatch {
             ++index;
         }
         InspectorPanel panel = editor.levelEventsPanel;
-        currentState = new LevelState {
+        currentState = new DefaultLevelState {
             selectedFloors = selectedFloors,
             selectedDecorationIndices = currentDecorationItemIndices,
             settingsEventType = editor.settingsPanel.selectedEventType,
@@ -142,90 +142,93 @@ public class SaveStatePatch {
             if(source.Count == 0) return;
             LevelState levelState = source.Last();
             using(new SaveStateScope(editor, false, false, true)) {
-                foreach(ChangedEventCache cache in levelState.changedEvents) {
-                    if(cache.action == ChangedEventCache.Action.Add && redo2 || cache.action == ChangedEventCache.Action.Remove && !redo2) editor.events.Add(cache.@event);
-                    else editor.events.Remove(cache.@event);
-                }
-                foreach(KeyValuePair<EventKey, EventValue> pair in levelState.changedEventValues) pair.Key.levelEvent[pair.Key.key] = redo2 ? pair.Value.newValue : pair.Value.defaultValue;
-                List<float> angleData = editor.levelData.angleData;
-                if(redo2)
-                    foreach(ChangedFloorCache cache in levelState.changedFloors) {
-                        if(cache.action == ChangedFloorCache.Action.Add) {
-                            angleData.Insert(cache.index, cache.angle);
-                            foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
-                                if(@event.floor >= cache.index)
-                                    @event.floor++;
-                        } else {
-                            angleData.RemoveAt(cache.index);
-                            foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
-                                if(@event.floor > cache.index)
-                                    @event.floor--;
-                        }
+                if(levelState is DefaultLevelState defaultLevelState) {
+                    foreach(ChangedEventCache cache in defaultLevelState.changedEvents) {
+                        if(cache.action == ChangedEventCache.Action.Add && redo2 || cache.action == ChangedEventCache.Action.Remove && !redo2) editor.events.Add(cache.@event);
+                        else editor.events.Remove(cache.@event);
                     }
-                else
-                    for(int i = levelState.changedFloors.Length - 1; i >= 0; i--) {
-                        ChangedFloorCache cache = levelState.changedFloors[i];
-                        if(cache.action == ChangedFloorCache.Action.Add) {
-                            angleData.RemoveAt(cache.index);
-                            foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
-                                if(@event.floor > cache.index)
-                                    @event.floor--;
-                        } else {
-                            angleData.Insert(cache.index, cache.angle);
-                            foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
-                                if(@event.floor >= cache.index)
-                                    @event.floor++;
-                        }
-                    }
-                foreach(int index in levelState.selectedDecorationIndices) {
-                    if(editor.customLevel.levelData.decorations.Count > index)
-                        editor.SelectDecoration(editor.customLevel.levelData.decorations[index], false, false, true);
-                }
-                if(!editor.SelectionDecorationIsEmpty()) {
-                    LevelEvent selectedDecoration = editor.selectedDecorations[^1];
-                    editor.levelEventsPanel.ShowInspector(true, true);
-                    editor.levelEventsPanel.ShowPanel(selectedDecoration.eventType);
-                }
-                UndoTileUpdate.UpdateTile(levelState, redo2);
-                editor.propertyControlDecorationsList.RefreshItemsList(true);
-                bool reselect = false;
-                int[] selectedFloors = levelState.selectedFloors;
-                int[] currentSelectedFloors = null;
-                if(!editor.SelectionIsEmpty()) {
-                    if(selectedFloors == null) reselect = true;
-                    else if(editor.SelectionIsSingle()) {
-                        currentSelectedFloors = [editor.selectedFloors[0].seqID];
-                        if(selectedFloors.Length != 1 || selectedFloors[0] != editor.selectedFloors[0].seqID) reselect = true;
-                    } else if(editor.selectedFloors.Count == selectedFloors.Length) {
-                        currentSelectedFloors = new int[editor.selectedFloors.Count];
-                        for(int i = 0; i < currentSelectedFloors.Length; i++) {
-                            currentSelectedFloors[i] = editor.selectedFloors[i].seqID;
-                            if(editor.selectedFloors[i].seqID != selectedFloors[i]) {
-                                reselect = true;
-                                break;
+                    foreach(KeyValuePair<EventKey, EventValue> pair in defaultLevelState.changedEventValues) pair.Key.levelEvent[pair.Key.key] = redo2 ? pair.Value.newValue : pair.Value.defaultValue;
+                    List<float> angleData = editor.levelData.angleData;
+                    if(redo2)
+                        foreach(ChangedFloorCache cache in defaultLevelState.changedFloors) {
+                            if(cache.action == ChangedFloorCache.Action.Add) {
+                                angleData.Insert(cache.index, cache.angle);
+                                foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
+                                    if(@event.floor >= cache.index)
+                                        @event.floor++;
+                            } else {
+                                angleData.RemoveAt(cache.index);
+                                foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
+                                    if(@event.floor > cache.index)
+                                        @event.floor--;
                             }
                         }
-                    } else reselect = true;
-                } else if(selectedFloors != null) reselect = true;
-                if(reselect) {
-                    editor.DeselectFloors();
-                    if(selectedFloors != null) {
-                        if(selectedFloors.Length > 1) editor.MultiSelectFloors(editor.floors[selectedFloors[0]], editor.floors[selectedFloors[^1]]);
-                        else editor.SelectFloor(editor.floors[selectedFloors[0]]);
+                    else
+                        for(int i = defaultLevelState.changedFloors.Length - 1; i >= 0; i--) {
+                            ChangedFloorCache cache = defaultLevelState.changedFloors[i];
+                            if(cache.action == ChangedFloorCache.Action.Add) {
+                                angleData.RemoveAt(cache.index);
+                                foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
+                                    if(@event.floor > cache.index)
+                                        @event.floor--;
+                            } else {
+                                angleData.Insert(cache.index, cache.angle);
+                                foreach(LevelEvent @event in editor.events.Concat(editor.decorations))
+                                    if(@event.floor >= cache.index)
+                                        @event.floor++;
+                            }
+                        }
+                    foreach(int index in defaultLevelState.selectedDecorationIndices) {
+                        if(editor.customLevel.levelData.decorations.Count > index)
+                            editor.SelectDecoration(editor.customLevel.levelData.decorations[index], false, false, true);
                     }
-                }
-                levelState.selectedFloors = currentSelectedFloors;
-                if(selectedFloors is { Length: 1 }) editor.levelEventsPanel.ShowPanel(levelState.floorEventType, levelState.floorEventTypeIndex);
-                editor.settingsPanel.ShowPanel(levelState.settingsEventType);
-                if(editor.particleEditor.gameObject.activeSelf && editor.particleEditor.SelectedEvent != null) {
-                    if(editor.selectedDecorations.Count == 0) editor.HideParticleEditor();
-                    else {
-                        ParticleEditor particleEditor = editor.particleEditor;
-                        List<LevelEvent> selectedDecorations = editor.selectedDecorations;
-                        LevelEvent ev = selectedDecorations[^1];
-                        particleEditor.SetEvent(ev);
+                    if(!editor.SelectionDecorationIsEmpty()) {
+                        LevelEvent selectedDecoration = editor.selectedDecorations[^1];
+                        editor.levelEventsPanel.ShowInspector(true, true);
+                        editor.levelEventsPanel.ShowPanel(selectedDecoration.eventType);
                     }
-                }
+                    UndoTileUpdate.UpdateTile(defaultLevelState, redo2);
+                    editor.propertyControlDecorationsList.RefreshItemsList(true);
+                    bool reselect = false;
+                    int[] selectedFloors = defaultLevelState.selectedFloors;
+                    int[] currentSelectedFloors = null;
+                    if(!editor.SelectionIsEmpty()) {
+                        if(selectedFloors == null) reselect = true;
+                        else if(editor.SelectionIsSingle()) {
+                            currentSelectedFloors = [editor.selectedFloors[0].seqID];
+                            if(selectedFloors.Length != 1 || selectedFloors[0] != editor.selectedFloors[0].seqID) reselect = true;
+                        } else if(editor.selectedFloors.Count == selectedFloors.Length) {
+                            currentSelectedFloors = new int[editor.selectedFloors.Count];
+                            for(int i = 0; i < currentSelectedFloors.Length; i++) {
+                                currentSelectedFloors[i] = editor.selectedFloors[i].seqID;
+                                if(editor.selectedFloors[i].seqID != selectedFloors[i]) {
+                                    reselect = true;
+                                    break;
+                                }
+                            }
+                        } else reselect = true;
+                    } else if(selectedFloors != null) reselect = true;
+                    if(reselect) {
+                        editor.DeselectFloors();
+                        if(selectedFloors != null) {
+                            if(selectedFloors.Length > 1) editor.MultiSelectFloors(editor.floors[selectedFloors[0]], editor.floors[selectedFloors[^1]]);
+                            else editor.SelectFloor(editor.floors[selectedFloors[0]]);
+                        }
+                    }
+                    defaultLevelState.selectedFloors = currentSelectedFloors;
+                    if(selectedFloors is { Length: 1 }) editor.levelEventsPanel.ShowPanel(defaultLevelState.floorEventType, defaultLevelState.floorEventTypeIndex);
+                    editor.settingsPanel.ShowPanel(defaultLevelState.settingsEventType);
+                    if(editor.particleEditor.gameObject.activeSelf && editor.particleEditor.SelectedEvent != null) {
+                        if(editor.selectedDecorations.Count == 0) editor.HideParticleEditor();
+                        else {
+                            ParticleEditor particleEditor = editor.particleEditor;
+                            List<LevelEvent> selectedDecorations = editor.selectedDecorations;
+                            LevelEvent ev = selectedDecorations[^1];
+                            particleEditor.SetEvent(ev);
+                        }
+                    }
+                } else if(redo) levelState.Redo();
+                else levelState.Undo();
                 source.RemoveAt(source.Count - 1);
                 if(redo2) undoStates.Add(levelState);
                 else redoStates.Add(levelState);
