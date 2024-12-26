@@ -12,7 +12,10 @@ public class EventsChangeScope : CustomSaveStateScope {
         startEventCount = scnEditor.instance.events.Count;
     }
 
-    public EventsChangeScope(LevelEvent @event) : this() => events = [ @event ];
+    public EventsChangeScope(LevelEvent @event, bool delete) : this() {
+        events = [@event];
+        this.delete = delete;
+    }
 
     public EventsChangeScope(List<LevelEvent> events) : this() => SetEvents(events);
 

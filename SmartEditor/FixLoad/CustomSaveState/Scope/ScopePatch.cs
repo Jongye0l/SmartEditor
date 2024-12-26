@@ -148,8 +148,39 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i - 4].opcode = OpCodes.Ldarg_1;
-                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent)));
-                list.RemoveRange(i - 3, 3);
+                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_0);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent), typeof(bool)));
+                list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(CutDecoration), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> CutDecoration(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent), typeof(bool)));
+                list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(MultiCutDecorations), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> MultiCutDecorations(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_0;
+                list[i - 3] = new CodeInstruction(OpCodes.Ldfld, SimpleReflect.Field(typeof(scnEditor), "selectedDecorations"));
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(List<LevelEvent>)));
+                list.RemoveRange(i - 2, 2);
             }
         }
         return list;
