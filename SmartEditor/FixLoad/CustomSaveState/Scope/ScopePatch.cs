@@ -185,4 +185,20 @@ public class ScopePatch {
         }
         return list;
     }
+
+    [JAPatch(typeof(scnEditor), nameof(SelectDecoration), PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "DeselectDecoration", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "DeselectAllDecorations", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "SwitchToEditMode", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> SelectDecoration(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(SelectDecorationScope).Constructor()) { labels = list[i - 4].labels };
+                list.RemoveRange(i - 4, 4);
+            }
+        }
+        return list;
+    }
 }

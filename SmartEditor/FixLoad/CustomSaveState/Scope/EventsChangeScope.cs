@@ -6,10 +6,12 @@ namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 public class EventsChangeScope : CustomSaveStateScope {
     public LevelEvent[] events;
     public int startEventCount;
+    public int startDecorationCount;
     public bool delete;
 
     public EventsChangeScope() : base(false) {
         startEventCount = scnEditor.instance.events.Count;
+        startDecorationCount = scnEditor.instance.decorations.Count;
     }
 
     public EventsChangeScope(LevelEvent @event, bool delete) : this() {
@@ -68,7 +70,9 @@ public class EventsChangeScope : CustomSaveStateScope {
     public override void Dispose() {
         base.Dispose();
         if(events != null) return;
-        events = new LevelEvent[scnEditor.instance.events.Count - startEventCount];
-        for(int i = startEventCount; i < scnEditor.instance.events.Count; i++) events[i - startEventCount] = scnEditor.instance.events[i];
+        events = new LevelEvent[scnEditor.instance.events.Count - startEventCount + scnEditor.instance.decorations.Count - startDecorationCount];
+        int index = 0;
+        for(int i = startEventCount; i < scnEditor.instance.events.Count; i++) events[index++] = scnEditor.instance.events[i];
+        for(int i = startDecorationCount; i < scnEditor.instance.decorations.Count; i++) events[index++] = scnEditor.instance.decorations[i];
     }
 }
