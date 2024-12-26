@@ -12,13 +12,17 @@ public class SelectFloorScope(bool skipSaving) : CustomSaveStateScope(skipSaving
         return floors;
     }
 
+    public static void SelectFloors(int[] floors) {
+        scnEditor editor = scnEditor.instance;
+        if(floors == null) editor.DeselectFloors();
+        else if(floors.Length == 1) editor.SelectFloor(editor.floors[floors[0]]);
+        else editor.MultiSelectFloors(editor.floors[floors[0]], editor.floors[floors[^1]]);
+    }
+
     public override void Undo() {
         int[] selected = selectedFloors;
         selectedFloors = GetSelectedFloors();
-        scnEditor editor = scnEditor.instance;
-        if(selected == null) editor.DeselectFloors();
-        else if(selected.Length == 1) editor.SelectFloor(editor.floors[selected[0]]);
-        else editor.MultiSelectFloors(editor.floors[selected[0]], editor.floors[selected[^1]]);
+        SelectFloors(selected);
     }
 
     public override void Redo() => Undo();

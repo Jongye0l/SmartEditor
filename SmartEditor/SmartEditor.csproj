@@ -510,6 +510,7 @@
         <Compile Include="FixLoad\CustomSaveState\Scope\CreateFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\CustomSaveStateScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\DeleteFloorScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\DeleteMultiFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\ScopePatch.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\SelectFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />

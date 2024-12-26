@@ -30,8 +30,37 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i - 4].opcode = OpCodes.Ldarg_1;
-                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DeleteFloorScope).Constructor());
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DeleteFloorScope).Constructor(typeof(int)));
                 list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(DeleteSingleSelection), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> DeleteSingleSelection(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DeleteFloorScope).Constructor(typeof(bool)));
+                list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(DeleteMultiSelection), PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "DeletePrecedingFloors", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "DeleteSubsequentFloors", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> DeleteMultiSelection(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DeleteMultiFloorScope).Constructor()) { labels = list[i - 4].labels };
+                list.RemoveRange(i - 4, 4);
             }
         }
         return list;

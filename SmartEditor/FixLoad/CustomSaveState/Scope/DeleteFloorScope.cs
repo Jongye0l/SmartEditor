@@ -10,9 +10,19 @@ public class DeleteFloorScope : CustomSaveStateScope {
     public LevelEvent[] events;
     public LevelEvent[] startTileEvents;
     public LevelEvent[] endTileEvents;
+    public int[] beforeSelected;
+    public int[] afterSelected;
+    public bool multi;
+
+    public DeleteFloorScope(bool backspace) : this(scnEditor.instance.selectedFloors[0].seqID + (backspace ? 0 : 1)) {
+    }
 
     public DeleteFloorScope(int index) : base(false) {
         if(CreateFloorScope.instance != null) CreateFloorScope.instance.deleted = this;
+        if(DeleteMultiFloorScope.instance != null) {
+            DeleteMultiFloorScope.instance.deleteFloorScopes.Add(this);
+            multi = true;
+        }
         scnEditor editor = scnEditor.instance;
         this.index = index;
         angle = editor.levelData.angleData[index - 1];
@@ -34,6 +44,7 @@ public class DeleteFloorScope : CustomSaveStateScope {
         this.events = events.ToArray();
         this.startTileEvents = startTileEvents.ToArray();
         this.endTileEvents = endTileEvents.ToArray();
+        if(!multi) beforeSelected = SelectFloorScope.GetSelectedFloors();
     }
 
     public override void Undo() {
@@ -53,15 +64,19 @@ public class DeleteFloorScope : CustomSaveStateScope {
                 if(tile.Item2 == TileRelativeTo.Start) @event.data["endTile"] = (tile.Item1 + 1, tile.Item2);
                 else @event.data["endTile"] = (tile.Item1 - 1, tile.Item2);
             }
-            scnGame.instance.ApplyEventsToFloors(scrLevelMaker.instance.listFloors);
+            if(!multi) scnGame.instance.ApplyEventsToFloors(scrLevelMaker.instance.listFloors);
         }
-        scrFloor floor = editor.floors[index];
-        editor.SelectFloor(floor);
-        FixPrivateMethod.MoveCameraToFloor(floor);
+        if(!multi) SelectFloorScope.SelectFloors(beforeSelected);
     }
 
     public override void Redo() {
         if(index <= 1) return;
         FixPrivateMethod.DeleteFloor(index);
+        if(!multi) SelectFloorScope.SelectFloors(afterSelected);
+    }
+
+    public override void Dispose() {
+        base.Dispose();
+        if(!multi) afterSelected = SelectFloorScope.GetSelectedFloors();
     }
 }
