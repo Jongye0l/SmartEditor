@@ -4,8 +4,8 @@ namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
 public abstract class CustomSaveStateScope : LevelState, IDisposable {
 
-    public CustomSaveStateScope() {
-        if(scnEditor.instance.changingState == 0) SaveStatePatch.undoStates.Add(this);
+    public CustomSaveStateScope(bool skipSaving) {
+        if(!skipSaving && scnEditor.instance.changingState == 0) SaveStatePatch.undoStates.Add(this);
         scnEditor.instance.changingState++;
     }
 

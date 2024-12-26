@@ -11,7 +11,7 @@ public class DeleteFloorScope : CustomSaveStateScope {
     public LevelEvent[] startTileEvents;
     public LevelEvent[] endTileEvents;
 
-    public DeleteFloorScope(int index) {
+    public DeleteFloorScope(int index) : base(false) {
         if(CreateFloorScope.instance != null) CreateFloorScope.instance.deleted = this;
         scnEditor editor = scnEditor.instance;
         this.index = index;
