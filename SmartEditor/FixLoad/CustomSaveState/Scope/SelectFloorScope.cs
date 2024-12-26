@@ -7,8 +7,9 @@ public class SelectFloorScope(bool skipSaving) : CustomSaveStateScope(skipSaving
         scnEditor editor = scnEditor.instance;
         if(editor.SelectionIsEmpty()) return null;
         if(editor.SelectionIsSingle()) return [editor.selectedFloors[0].seqID];
-        int[] floors = new int[editor.selectedFloors.Count];
-        for(int i = 0; i < editor.selectedFloors.Count; i++) floors[i] = editor.selectedFloors[i].seqID;
+        int[] floors = new int[editor.selectedFloors.Count + 1];
+        floors[0] = editor.multiSelectPoint.seqID;
+        for(int i = 0; i < editor.selectedFloors.Count; i++) floors[i + 1] = editor.selectedFloors[i].seqID;
         return floors;
     }
 
@@ -16,7 +17,10 @@ public class SelectFloorScope(bool skipSaving) : CustomSaveStateScope(skipSaving
         scnEditor editor = scnEditor.instance;
         if(floors == null) editor.DeselectFloors();
         else if(floors.Length == 1) editor.SelectFloor(editor.floors[floors[0]]);
-        else editor.MultiSelectFloors(editor.floors[floors[0]], editor.floors[floors[^1]]);
+        else {
+            editor.MultiSelectFloors(editor.floors[floors[1]], editor.floors[floors[^1]]);
+            editor.multiSelectPoint = editor.floors[floors[0]];
+        }
     }
 
     public override void Undo() {
