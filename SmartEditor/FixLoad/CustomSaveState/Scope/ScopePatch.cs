@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ADOFAI;
+using ADOFAI.Editor.Actions;
 using HarmonyLib;
 using JALib.Core.Patch;
 using JALib.Tools;
@@ -209,6 +210,19 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
+                list.RemoveRange(i - 4, 4);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(DragDecorationsStart), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> DragDecorationsStart(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DecorationLocationChangeScope).Constructor([])) { labels = list[i - 4].labels };
                 list.RemoveRange(i - 4, 4);
             }
         }
