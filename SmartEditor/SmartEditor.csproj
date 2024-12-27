@@ -521,6 +521,7 @@
         <Compile Include="FixLoad\CustomSaveState\Scope\ScopePatch.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\SelectDecorationScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\SelectFloorScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\ShowPanelScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />
