@@ -8,8 +8,8 @@ public class FixPrivateMethod {
     public static MethodInfo MoveCameraToFloorMethod = typeof(scnEditor).Method("MoveCameraToFloor");
     public static MethodInfo OffsetFloorIDsInEventsMethod = typeof(scnEditor).Method("OffsetFloorIDsInEvents");
 
-    public static void DeleteFloor(int index) {
-        DeleteFloorMethod.Invoke(scnEditor.instance, [index, true]);
+    public static void DeleteFloor(int index, bool remakePath = true) {
+        DeleteFloorMethod.Invoke(scnEditor.instance, [index, remakePath]);
     }
 
     public static void MoveCameraToFloor(scrFloor floor) {
