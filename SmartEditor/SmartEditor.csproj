@@ -516,6 +516,7 @@
         <Compile Include="FixLoad\CustomSaveState\Scope\FlipFloorsScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\PasteFloorsScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\PasteHitSoundScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\PasteTrackColorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\ScopePatch.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\SelectDecorationScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\SelectFloorScope.cs" />

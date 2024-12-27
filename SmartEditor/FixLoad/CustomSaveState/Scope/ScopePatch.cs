@@ -288,4 +288,34 @@ public class ScopePatch {
         }
         return list;
     }
+
+    [JAPatch(typeof(scnEditor), nameof(PasteTrackColor), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> PasteTrackColor(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_0);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(PasteTrackColorScope).Constructor());
+                list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(PasteTrackColorSingleTile), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> PasteTrackColorSingleTile(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(PasteTrackColorScope).Constructor());
+                list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
 }
