@@ -149,8 +149,8 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i - 4].opcode = OpCodes.Ldarg_1;
-                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_0);
-                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent), typeof(bool)));
+                list[i - 3] = new CodeInstruction(OpCodes.Ldarg_2);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent), typeof(int)));
                 list.RemoveRange(i - 2, 2);
             }
         }
@@ -164,9 +164,8 @@ public class ScopePatch {
             CodeInstruction code = list[i];
             if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
                 list[i - 4].opcode = OpCodes.Ldarg_1;
-                list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_1);
-                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent), typeof(bool)));
-                list.RemoveRange(i - 2, 2);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor(typeof(LevelEvent)));
+                list.RemoveRange(i - 3, 3);
             }
         }
         return list;
@@ -187,7 +186,7 @@ public class ScopePatch {
         return list;
     }
 
-    [JAPatch(typeof(scnEditor), nameof(SelectDecoration), PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(SelectDecoration), PatchType.Transpiler, false, ArgumentTypesType = [typeof(LevelEvent), typeof(bool), typeof(bool), typeof(bool), typeof(bool)])]
     [JAPatch(typeof(scnEditor), "DeselectDecoration", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "DeselectAllDecorations", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "SwitchToEditMode", PatchType.Transpiler, false)]
@@ -203,8 +202,9 @@ public class ScopePatch {
         return list;
     }
 
+    [JAPatch(typeof(scnEditor), nameof(DuplicateDecorations), PatchType.Transpiler, false)]
     [JAPatch(typeof(PasteEventsEditorAction), "Execute", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> PasteEvents(IEnumerable<CodeInstruction> instructions) {
+    public static IEnumerable<CodeInstruction> DuplicateDecorations(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
             CodeInstruction code = list[i];

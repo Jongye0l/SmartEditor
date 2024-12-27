@@ -4,22 +4,28 @@ using ADOFAI;
 namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
 public class EventsChangeScope : CustomSaveStateScope {
+    public static EventsChangeScope instance;
     public LevelEvent[] events;
+    public List<DecorationCache> decorations;
     public int startEventCount;
-    public int startDecorationCount;
     public bool delete;
 
     public EventsChangeScope() : base(false) {
         startEventCount = scnEditor.instance.events.Count;
-        startDecorationCount = scnEditor.instance.decorations.Count;
+        instance ??= this;
+        decorations = [];
     }
 
-    public EventsChangeScope(LevelEvent @event, bool delete) : this() {
-        events = [@event];
-        this.delete = delete;
+    public EventsChangeScope(LevelEvent @event, int index) : base(false) {
+        events = [];
+        decorations = [ new DecorationCache(@event, index) ];
     }
 
-    public EventsChangeScope(List<LevelEvent> events) : this() => SetEvents(events);
+    public EventsChangeScope(LevelEvent @event) : this(@event, scnEditor.instance.decorations.IndexOf(@event)) {
+        delete = true;
+    }
+
+    public EventsChangeScope(List<LevelEvent> events) : base(false) => SetEvents(events);
 
     public void SetEvents(List<LevelEvent> events) {
         this.events = events.ToArray();
@@ -28,16 +34,21 @@ public class EventsChangeScope : CustomSaveStateScope {
 
     public void Add() {
         foreach(LevelEvent @event in events) {
-            if(@event.IsDecoration) scnEditor.instance.decorations.Add(@event);
+            if(@event.IsDecoration) scnEditor.instance.AddDecoration(@event);
             else scnEditor.instance.events.Add(@event);
         }
+        foreach(DecorationCache cache in decorations) scnEditor.instance.AddDecoration(cache.decoration, cache.index);
     }
 
     public void Remove() {
+        LevelEvent decoration = null;
         foreach(LevelEvent @event in events) {
-            if(@event.IsDecoration) scnEditor.instance.decorations.Remove(@event);
-            else scnEditor.instance.events.Remove(@event);
+            scnEditor.instance.RemoveEvent(@event, true);
+            if(@event.IsDecoration) decoration ??= @event;
         }
+        if(decoration == null && decorations.Count == 0) return;
+        foreach(DecorationCache cache in decorations) scnEditor.instance.RemoveEvent(cache.decoration, true);
+        scnEditor.instance.RemoveEvent(decoration ?? decorations[0].decoration);
     }
 
     public override void Undo() {
@@ -67,12 +78,22 @@ public class EventsChangeScope : CustomSaveStateScope {
         delete = true;
     }
 
+    public static void AddDecoration(LevelEvent @event, int index) {
+        if(instance is not { events: null }) return;
+        instance.decorations.Add(new DecorationCache(@event, index));
+    }
+
     public override void Dispose() {
         base.Dispose();
+        if(instance == this) instance = null;
         if(events != null) return;
-        events = new LevelEvent[scnEditor.instance.events.Count - startEventCount + scnEditor.instance.decorations.Count - startDecorationCount];
-        int index = 0;
-        for(int i = startEventCount; i < scnEditor.instance.events.Count; i++) events[index++] = scnEditor.instance.events[i];
-        for(int i = startDecorationCount; i < scnEditor.instance.decorations.Count; i++) events[index++] = scnEditor.instance.decorations[i];
+        int count = scnEditor.instance.events.Count - startEventCount;
+        events = new LevelEvent[count];
+        scnEditor.instance.events.CopyTo(startEventCount, events, 0, count);
+    }
+
+    public class DecorationCache(LevelEvent decoration, int index) {
+        public LevelEvent decoration = decoration;
+        public int index = index;
     }
 }
