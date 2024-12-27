@@ -4,28 +4,32 @@ namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
 public class FlipFloorsScope : CustomSaveStateScope {
     public bool horizontal;
-    public int[] floors;
+    public int seqID;
+    public int size;
 
     public FlipFloorsScope(bool horizontal) : base(false) {
         List<scrFloor> selectedFloors = scnEditor.instance.selectedFloors;
-        floors = new int[selectedFloors.Count];
-        for(int i = 0; i < selectedFloors.Count; i++) floors[i] = selectedFloors[i].seqID;
+        if(selectedFloors.Count > 0) {
+            seqID = selectedFloors[0].seqID;
+            size = selectedFloors.Count;
+        }
         this.horizontal = horizontal;
     }
 
     public FlipFloorsScope(scrFloor floor, bool horizontal) : base(false) {
-        floors = [floor.seqID];
+        seqID = floor.seqID;
+        size = 1;
         this.horizontal = horizontal;
     }
 
     public override void Undo() {
-        if(floors.Length == 0) return;
+        if(size == 0) return;
         scnEditor editor = scnEditor.instance;
-        if(floors.Length == 1) editor.FlipFloor(editor.floors[floors[0]], horizontal);
+        if(size == 1) editor.FlipFloor(editor.floors[seqID], horizontal);
         else {
-            foreach(int i in floors) editor.FlipFloor(editor.floors[i], horizontal, false);
-            FlipTileUpdate.UpdateTile(floors[0], floors.Length, horizontal);
-            editor.MultiSelectFloors(editor.floors[floors[0]], editor.floors[floors[^1]]);
+            for(int i = 0; i < size; i++) editor.FlipFloor(editor.floors[seqID + i], horizontal, false);
+            FlipTileUpdate.UpdateTile(seqID, size, horizontal);
+            editor.MultiSelectFloors(editor.floors[seqID], editor.floors[seqID + size - 1]);
         }
     }
 
