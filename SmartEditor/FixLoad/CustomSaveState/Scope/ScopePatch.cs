@@ -56,6 +56,7 @@ public class ScopePatch {
     [JAPatch(typeof(scnEditor), nameof(DeleteMultiSelection), PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "DeletePrecedingFloors", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "DeleteSubsequentFloors", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), "MultiCutFloors", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> DeleteMultiSelection(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
