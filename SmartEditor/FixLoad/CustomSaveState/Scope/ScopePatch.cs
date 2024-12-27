@@ -158,8 +158,9 @@ public class ScopePatch {
         return list;
     }
 
-    [JAPatch(typeof(scnEditor), nameof(CutDecoration), PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> CutDecoration(IEnumerable<CodeInstruction> instructions) {
+    [JAPatch(typeof(scnEditor), "CutDecoration", PatchType.Transpiler, false)]
+    [JAPatch(typeof(scnEditor), nameof(RemoveEvent), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> RemoveEvent(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
             CodeInstruction code = list[i];
@@ -314,6 +315,32 @@ public class ScopePatch {
                 list[i - 3] = new CodeInstruction(OpCodes.Ldc_I4_1);
                 list[i] = new CodeInstruction(OpCodes.Newobj, typeof(PasteTrackColorScope).Constructor());
                 list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(RemoveEventAtSelected), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> RemoveEventAtSelected(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+        List<CodeInstruction> list = instructions.ToList();
+        LocalBuilder local = generator.DeclareLocal(typeof(EventsChangeScope));
+        LocalBuilder local2 = generator.DeclareLocal(typeof(LevelEvent));
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
+                list[i - 3] = new CodeInstruction(OpCodes.Stloc, local);
+                list[i - 2] = new CodeInstruction(OpCodes.Ldloc, local);
+                list.RemoveRange(i - 1, 2);
+            } else if(code.operand is MethodInfo { Name: "RemoveEvent" }) {
+                list.InsertRange(i - 1, [
+                    new CodeInstruction(OpCodes.Stloc, local2),
+                    new CodeInstruction(OpCodes.Ldloc, local),
+                    new CodeInstruction(OpCodes.Ldloc, local2),
+                    new CodeInstruction(OpCodes.Call, typeof(EventsChangeScope).Method("DeleteEvents")),
+                    new CodeInstruction(OpCodes.Ldloc, local2)
+                ]);
+                i += 5;
             }
         }
         return list;

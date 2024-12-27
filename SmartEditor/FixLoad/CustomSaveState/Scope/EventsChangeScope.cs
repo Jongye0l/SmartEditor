@@ -21,7 +21,14 @@ public class EventsChangeScope : CustomSaveStateScope {
         decorations = [ new DecorationCache(@event, index) ];
     }
 
-    public EventsChangeScope(LevelEvent @event) : this(@event, scnEditor.instance.decorations.IndexOf(@event)) {
+    public EventsChangeScope(LevelEvent @event) : base(false) {
+        if(@event.IsDecoration) {
+            events = [];
+            decorations = [new DecorationCache(@event, scnEditor.instance.decorations.IndexOf(@event))];
+        } else {
+            events = [ @event ];
+            decorations = [];
+        }
         delete = true;
     }
 
