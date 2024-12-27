@@ -228,4 +228,33 @@ public class ScopePatch {
         }
         return list;
     }
+
+    [JAPatch(typeof(scnEditor), nameof(FlipFloor), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> FlipFloor(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i - 3] = new CodeInstruction(OpCodes.Ldarg_2);
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(FlipFloorsScope).Constructor(typeof(scrFloor), typeof(bool)));
+                list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(FlipSelection), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> FlipSelection(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_1;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(FlipFloorsScope).Constructor(typeof(bool)));
+                list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
 }
