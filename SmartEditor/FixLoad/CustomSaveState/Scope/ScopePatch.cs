@@ -403,4 +403,46 @@ public class ScopePatch {
         }
         return list;
     }
+
+    [JAPatch(typeof(PasteFloorEditorAction), "Execute", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> PasteFloorEditorAction(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        bool first = true;
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                if(first) {
+                    list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
+                    list.RemoveRange(i - 4, 4);
+                    first = false;
+                } else {
+                    list[i - 4].opcode = OpCodes.Ldc_I4_1;
+                    list[i] = new CodeInstruction(OpCodes.Newobj, typeof(PasteFloorsScope).Constructor(typeof(bool)));
+                    list.RemoveRange(i - 3, 3);
+                }
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(PasteFloorWithoutDecorationsEditorAction), "Execute", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> PasteFloorWithoutDecorationsEditorAction(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        bool first = true;
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                if(first) {
+                    list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventsChangeScope).Constructor([])) { labels = list[i - 4].labels };
+                    list.RemoveRange(i - 4, 4);
+                    first = false;
+                } else {
+                    list[i - 4].opcode = OpCodes.Ldc_I4_0;
+                    list[i] = new CodeInstruction(OpCodes.Newobj, typeof(PasteFloorsScope).Constructor(typeof(bool)));
+                    list.RemoveRange(i - 3, 3);
+                }
+            }
+        }
+        return list;
+    }
 }
