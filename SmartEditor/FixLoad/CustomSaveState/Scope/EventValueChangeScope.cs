@@ -17,6 +17,7 @@ public class EventValueChangeScope : CustomSaveStateScope {
     public override void Undo() {
         (@event[key], value) = (value, @event[key]);
         scnEditor.instance.ApplyEventsToFloors();
+        scnEditor.instance.levelEventsPanel.ShowPanel(@event.eventType);
     }
 
     public override void Redo() => Undo();
