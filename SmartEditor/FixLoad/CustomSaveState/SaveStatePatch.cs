@@ -263,6 +263,12 @@ public class SaveStatePatch {
         return codes;
     }
 
+    [JAPatch(typeof(scnEditor), "Awake", PatchType.Postfix, false)]
+    public static void EditorAwake() {
+        undoStates.Clear();
+        redoStates.Clear();
+    }
+
     public struct EventKey : IEquatable<EventKey> {
         public LevelEvent levelEvent;
         public string key;
