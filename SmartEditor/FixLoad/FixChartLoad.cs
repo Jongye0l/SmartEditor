@@ -17,7 +17,8 @@ namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
-        ScopePatch.Patch(Patcher.AddPatch(typeof(SaveStatePatch)));
+        SaveStatePatch.Patch(Patcher);
+        ScopePatch.Patch(Patcher);
     }
 
     protected override void OnGUI() {

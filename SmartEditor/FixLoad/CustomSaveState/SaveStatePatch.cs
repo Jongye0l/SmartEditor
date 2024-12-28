@@ -22,6 +22,14 @@ public class SaveStatePatch {
     public static List<LevelState> redoStates = [];
     public static DefaultLevelState currentState;
 
+    public static void Patch(JAPatcher patcher) {
+        patcher.AddPatch(typeof(SaveStatePatch));
+        foreach(MethodInfo method in typeof(scnEditor).Methods())
+            if(method.Name.StartsWith("<NewLevel>")) patcher.AddPatch(NewLevel, new JAPatchAttribute(method, PatchType.Transpiler, false));
+        foreach(Type type in typeof(scnEditor).GetNestedTypes(AccessTools.all))
+            if(type.Name.StartsWith("<OpenLevelCo>")) patcher.AddPatch(NewLevel, new JAPatchAttribute(type.Method("MoveNext"), PatchType.Transpiler, false));
+    }
+
     [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false)]
     public static void SaveState(scnEditor __instance, bool clearRedo = false, bool dataHasChanged = true) {
         scnEditor editor = __instance;
@@ -236,6 +244,23 @@ public class SaveStatePatch {
         } catch (Exception e) {
             Main.Instance.LogException(e);
         }
+    }
+
+    public static IEnumerable<CodeInstruction> NewLevel(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codes = instructions.ToList();
+        for(int i = 0; i < codes.Count; i++) {
+            CodeInstruction code = codes[i];
+            if(code.operand is FieldInfo { Name: nameof(undoStates) }) {
+                codes[i - 1] = new CodeInstruction(OpCodes.Ldsfld, SimpleReflect.Field(typeof(SaveStatePatch), nameof(undoStates)));
+                codes.RemoveAt(i);
+                codes[i] = new CodeInstruction(OpCodes.Callvirt, typeof(List<LevelState>).Method(nameof(List<LevelState>.Clear)));
+            } else if(code.operand is FieldInfo { Name: nameof(redoStates) }) {
+                codes[i - 1] = new CodeInstruction(OpCodes.Ldsfld, SimpleReflect.Field(typeof(SaveStatePatch), nameof(redoStates)));
+                codes.RemoveAt(i);
+                codes[i] = new CodeInstruction(OpCodes.Callvirt, typeof(List<LevelState>).Method(nameof(List<LevelState>.Clear)));
+            }
+        }
+        return codes;
     }
 
     public struct EventKey : IEquatable<EventKey> {
