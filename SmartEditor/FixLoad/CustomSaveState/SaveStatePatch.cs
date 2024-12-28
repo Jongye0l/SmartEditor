@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -32,6 +33,7 @@ public class SaveStatePatch {
 
     [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false)]
     public static void SaveState(scnEditor __instance, bool clearRedo = false, bool dataHasChanged = true) {
+        Main.Instance.Warning("Old SaveState called! This should not be called! Please report this to the mod author!\n" + new StackTrace());
         scnEditor editor = __instance;
         if(editor.changingState != 0 || !editor.initialized) return;
         int[] selectedFloors = null;
