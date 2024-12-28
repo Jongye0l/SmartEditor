@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -12,6 +13,18 @@ using JALib.Tools;
 namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
 public class ScopePatch {
+    public static void Patch(JAPatcher patcher) {
+        patcher.AddPatch(typeof(ScopePatch));
+        foreach(MethodInfo method in typeof(PropertyControl_LongText).Methods().Concat(typeof(PropertyControl_Text).Methods()))
+            if(method.Name.StartsWith("<Setup>")) patcher.AddPatch(((Delegate) Save).Method, new JAPatchAttribute(method, PatchType.Transpiler, false));
+        foreach(MethodInfo method in typeof(PropertyControl_DecorationsList).Methods())
+            if(method.Name.StartsWith("<Awake>")) patcher.AddPatch(((Delegate) SelectDecoration).Method, new JAPatchAttribute(method, PatchType.Transpiler, false));
+        foreach(MethodInfo method in typeof(PropertyControl_FilterProperties).Methods())
+            if(method.Name.StartsWith("<ReloadFilterProperties>")) patcher.AddPatch(((Delegate) ChangeEventDisable).Method, new JAPatchAttribute(method, PatchType.Transpiler, false));
+        foreach(MethodInfo method in typeof(PropertiesPanel).Methods())
+            if(method.Name.StartsWith("<RenderControl>")) patcher.AddPatch(((Delegate) ChangeEventDisable).Method, new JAPatchAttribute(method, PatchType.Transpiler, false));
+    }
+
     [JAPatch(typeof(scnEditor), nameof(CreateFloor), PatchType.Transpiler, false, ArgumentTypesType = [typeof(float), typeof(bool), typeof(bool)])]
     public static IEnumerable<CodeInstruction> CreateFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
@@ -193,7 +206,6 @@ public class ScopePatch {
     [JAPatch(typeof(scnEditor), "DeselectDecoration", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "DeselectAllDecorations", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "SwitchToEditMode", PatchType.Transpiler, false)]
-    [JAPatch(typeof(PropertyControl_DecorationsList), "Awake", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_List), "SelectItemsInRange", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> SelectDecoration(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
@@ -469,11 +481,8 @@ public class ScopePatch {
     [JAPatch(typeof(PropertyControl_File), "OnRightClick", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_File), "ProcessFile", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_FloatPair), nameof(Save), PatchType.Transpiler, false)]
-    [JAPatch(typeof(PropertyControl_FloatPair), nameof(Save), PatchType.Transpiler, false)]
-    [JAPatch(typeof(PropertyControl_LongText), "Setup", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_MinMaxGradient), nameof(Save), PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_Rating), "SetInt", PatchType.Transpiler, false)]
-    [JAPatch(typeof(PropertyControl_Text), "Setup", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_Toggle), "SelectVar", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_Vector2), "SetVectorVals", PatchType.Transpiler, false)]
     [JAPatch(typeof(PropertyControl_Vector2Range), "SetVectorVals", PatchType.Transpiler, false)]
@@ -490,9 +499,7 @@ public class ScopePatch {
         return list;
     }
 
-    [JAPatch(typeof(PropertyControl_FilterProperties), nameof(ReloadFilterProperties), PatchType.Transpiler, false)]
-    [JAPatch(typeof(PropertiesPanel), "RenderControl", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> ReloadFilterProperties(IEnumerable<CodeInstruction> instructions) {
+    public static IEnumerable<CodeInstruction> ChangeEventDisable(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
             CodeInstruction code = list[i];
