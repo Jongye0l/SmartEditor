@@ -14,7 +14,6 @@ public class UndoTileUpdate {
             ApplyEvent applyEvent = new() { reloadEvents = levelState.changedEvents.Length > 0 };
             MakeLevel(levelState, applyEvent, redo); //game.levelMaker.MakeLevel();
             if(applyEvent.reloadEvents) game.ApplyEventsToFloors(levelMaker.listFloors);
-            else foreach(scrFloor floor in applyEvent.onlyReloadFloors) ApplyEventsToFloors(floor);
             levelMaker.DrawHolds();
             levelMaker.DrawMultiPlanet();
             FixChartLoad.DrawEditor();
@@ -25,6 +24,7 @@ public class UndoTileUpdate {
 
     public static void MakeLevel(DefaultLevelState levelState, ApplyEvent applyEvent, bool redo) {
         if(levelState.changedFloors.Length == 0) return;
+        applyEvent.reloadEvents = true;
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         if(levelMaker.isOldLevel) levelMaker.InstantiateStringFloors();
         else InstantiateFloatFloors(levelState, applyEvent, redo); //levelMaker.InstantiateFloatFloors();
@@ -38,7 +38,6 @@ public class UndoTileUpdate {
             CheckAndUpdateAngle(applyEvent, floor.nextfloor);
         }
         if(applyEvent.portalParticles) levelMaker.listFloors[^1].SpawnPortalParticles();
-        if(!applyEvent.reloadEvents) foreach(scrFloor floor in applyEvent.reloadIcons) floor.UpdateIconSprite();
         if(applyEvent.reloadSeqId) for(int i = 0; i < levelMaker.listFloors.Count; i++) levelMaker.listFloors[i].SetSortingOrder((100 + levelMaker.listFloors.Count - i) * 5);
     }
 
@@ -86,10 +85,6 @@ public class UndoTileUpdate {
                     cur.isportal = true;
                     cur.levelnumber = Portal.EndOfLevel;
                     applyEvent.portalParticles = true;
-                    if(!applyEvent.reloadEvents) {
-                        applyEvent.reloadIcons.Add(prev);
-                        applyEvent.reloadIcons.Add(cur);
-                    }
                 }
                 cur.radiusScale = prev.radiusScale;
                 applyEvent.onlyReloadFloors.Add(cur);
@@ -135,7 +130,6 @@ public class UndoTileUpdate {
             }
         }
         Vector3 addedPos = Vector3.zero;
-        Vector3 addedTransformPos = Vector3.zero;
         for(int i = 0; i < levelMaker.listFloors.Count; i++) {
             scrFloor fl = levelMaker.listFloors[i];
             if(updatedFloors.Contains(fl)) {
@@ -144,71 +138,14 @@ public class UndoTileUpdate {
                 Vector3 newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
                 fl.startPos = prev.startPos + newPos;
                 addedPos = fl.startPos - addedPos;
-                if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
-                else {
-                    addedTransformPos = fl.transform.position;
-                    fl.transform.position = prev.transform.position + newPos * fl.radiusScale;
-                    addedTransformPos = fl.transform.position - addedTransformPos;
-                }
-            } else {
-                fl.startPos += addedPos;
-                if(applyEvent.reloadEvents) fl.transform.position = fl.startPos;
-                else fl.transform.position += addedTransformPos;
-            }
+            } else fl.startPos += addedPos;
+            fl.transform.position = fl.startPos;
         }
-    }
-
-    public static void ApplyEventsToFloors(scrFloor curFloor) {
-        scrFloor prevFloor = curFloor.prevfloor;
-        curFloor.numPlanets = prevFloor.numPlanets;
-        curFloor.isSafe = prevFloor.isSafe;
-        curFloor.auto = prevFloor.auto;
-        curFloor.showStatusText = prevFloor.showStatusText;
-        curFloor.hideJudgment = prevFloor.hideJudgment;
-        curFloor.hideIcon = prevFloor.hideIcon;
-        curFloor.marginScale = prevFloor.marginScale;
-        curFloor.lengthMult = prevFloor.lengthMult;
-        curFloor.widthMult = prevFloor.widthMult;
-        curFloor.planetEase = prevFloor.planetEase;
-        curFloor.planetEaseParts = prevFloor.planetEaseParts;
-        curFloor.planetEasePartBehavior = prevFloor.planetEasePartBehavior;
-        curFloor.stickToFloor = prevFloor.stickToFloor;
-        curFloor.customTexture = prevFloor.customTexture;
-        curFloor.customTextureScale = prevFloor.customTextureScale;
-        curFloor.outline = prevFloor.outline;
-        curFloor.SetColor(prevFloor.floorRenderer.deselectedColor);
-        curFloor.styleNum = prevFloor.styleNum;
-        curFloor.UpdateAngle();
-        curFloor.SetTrackStyle(prevFloor.initialTrackStyle, true);
-        ffxChangeTrack prevFloorTrack = prevFloor.GetComponent<ffxChangeTrack>();
-        if(prevFloorTrack) {
-            ffxChangeTrack curFloorTrack = curFloor.GetOrAddComponent<ffxChangeTrack>();
-            curFloorTrack.color1 = prevFloorTrack.color1;
-            curFloorTrack.color2 = prevFloorTrack.color2;
-            curFloorTrack.colorType = prevFloorTrack.colorType;
-            curFloorTrack.colorAnimDuration = prevFloorTrack.colorAnimDuration;
-            curFloorTrack.pulseType = prevFloorTrack.pulseType;
-            curFloorTrack.pulseLength = prevFloorTrack.pulseLength;
-            curFloorTrack.startOfColorChange = prevFloorTrack.startOfColorChange;
-            curFloorTrack.texture = prevFloorTrack.texture;
-            curFloorTrack.animationType = prevFloorTrack.animationType;
-            curFloorTrack.animationType2 = prevFloorTrack.animationType2;
-            curFloorTrack.tilesAhead = prevFloorTrack.tilesAhead;
-            curFloorTrack.tilesBehind = prevFloorTrack.tilesBehind;
-        }
-        curFloor.glowMultiplier = prevFloor.glowMultiplier;
-        curFloor.startScale = curFloor.transform.localScale = prevFloor.startScale;
-        curFloor.SetOpacity(prevFloor.opacity);
-        curFloor.opacityVal = prevFloor.opacityVal;
-        curFloor.rotationOffset = prevFloor.rotationOffset;
-        curFloor.SetRotation((curFloor.tweenRot - curFloor.startRot).z);
-        curFloor.stickToFloor = prevFloor.stickToFloor;
     }
 
     public class ApplyEvent {
         public bool reloadEvents;
         public List<scrFloor> onlyReloadFloors = [];
-        public List<scrFloor> reloadIcons = [];
         public scrFloor[] updatedFloors;
         public bool reloadSeqId;
         public bool portalParticles;
