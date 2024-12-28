@@ -7,6 +7,7 @@ public class ShowPanelScope : CustomSaveStateScope {
     public static LevelEventType lastPanel2;
     public InspectorPanel panel;
     public LevelEventType eventType;
+    public int index;
 
     public ShowPanelScope(InspectorPanel panel, LevelEventType type) : base(false) {
         this.panel = panel;
@@ -17,11 +18,15 @@ public class ShowPanelScope : CustomSaveStateScope {
             eventType = lastPanel2;
             lastPanel2 = type;
         }
+        if(eventType == type) SaveStatePatch.undoStates.Remove(this);
+        index = panel.cacheEventIndex;
     }
 
     public override void Undo() {
         LevelEventType curType = eventType;
+        ADOBase.editor.cacheSelectedEventIndex = index;
         eventType = panel.selectedEventType;
+        index = panel.cacheEventIndex;
         if(curType == LevelEventType.None) panel.HideAllInspectorTabs();
         else panel.ShowPanel(curType);
     }
