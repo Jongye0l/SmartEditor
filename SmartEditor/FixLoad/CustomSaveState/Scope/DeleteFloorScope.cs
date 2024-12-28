@@ -17,7 +17,7 @@ public class DeleteFloorScope : CustomSaveStateScope {
     public DeleteFloorScope(bool backspace) : this(scnEditor.instance.selectedFloors[0].seqID + (backspace ? 0 : 1)) {
     }
 
-    public DeleteFloorScope(int index) : base(false) {
+    public DeleteFloorScope(int index) : base(false, true) {
         if(CreateFloorScope.instance != null) CreateFloorScope.instance.deleted = this;
         if(DeleteMultiFloorScope.instance != null) {
             DeleteMultiFloorScope.instance.deleteFloorScopes.Add(this);

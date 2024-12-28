@@ -2,7 +2,7 @@
 
 namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
-public class SelectDecorationScope() : CustomSaveStateScope(false) {
+public class SelectDecorationScope() : CustomSaveStateScope(false, false) {
     public LevelEvent[] selectedDecorations = scnEditor.instance.selectedDecorations.ToArray();
 
     public override void Undo() {

@@ -6,7 +6,7 @@ public class CreateFloorScope : CustomSaveStateScope {
     public float angle;
     public DeleteFloorScope deleted;
 
-    public CreateFloorScope(float angle) : base(false) {
+    public CreateFloorScope(float angle) : base(false, true) {
         this.angle = angle;
         if(scnEditor.instance.changingState == 1) instance = this;
     }

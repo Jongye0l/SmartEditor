@@ -8,7 +8,7 @@ public class DeleteMultiFloorScope : CustomSaveStateScope {
     public int[] beforeSelected;
     public int[] afterSelected;
 
-    public DeleteMultiFloorScope() : base(false) {
+    public DeleteMultiFloorScope() : base(false, true) {
         instance = this;
         beforeSelected = SelectFloorScope.GetSelectedFloors();
     }

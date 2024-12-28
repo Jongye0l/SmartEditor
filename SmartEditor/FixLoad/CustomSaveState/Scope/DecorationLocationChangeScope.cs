@@ -6,7 +6,7 @@ namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 public class DecorationLocationChangeScope : CustomSaveStateScope {
     public DecorationCache[] decorations;
 
-    public DecorationLocationChangeScope() : base(false) {
+    public DecorationLocationChangeScope() : base(false, true) {
         decorations = new DecorationCache[scnEditor.instance.selectedDecorations.Count];
         for(int i = 0; i < decorations.Length; i++) {
             LevelEvent decoration = scnEditor.instance.selectedDecorations[i];

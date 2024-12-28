@@ -11,7 +11,7 @@ public class DecoDragScope : CustomSaveStateScope {
     public LevelEvent[] decoration;
     public int index;
 
-    public DecoDragScope(PropertyControl_List list) : base(false) {
+    public DecoDragScope(PropertyControl_List list) : base(false, true) {
         if(list is PropertyControl_DecorationsList decoList) {
             List<scrDecoration> decorations = cachedDecorations.GetValue<List<scrDecoration>>(decoList);
             decoration = new LevelEvent[decorations.Count];

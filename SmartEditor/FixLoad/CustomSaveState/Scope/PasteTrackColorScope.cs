@@ -9,7 +9,7 @@ public class PasteTrackColorScope : CustomSaveStateScope {
     public LevelEvent previousTrackColor;
     public bool previousNeed;
 
-    public PasteTrackColorScope(int seqId, bool previousNeed) : base(false) {
+    public PasteTrackColorScope(int seqId, bool previousNeed) : base(false, true) {
         this.seqId = seqId;
         copiedTrackColor = FixPrivateMethod.copiedTrackColor;
         previousNeed = seqId < scnEditor.instance.floors.Count - 2 && previousNeed;

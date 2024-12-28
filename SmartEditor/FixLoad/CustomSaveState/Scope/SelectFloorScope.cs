@@ -1,6 +1,6 @@
 ﻿namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
-public class SelectFloorScope(bool skipSaving) : CustomSaveStateScope(skipSaving) {
+public class SelectFloorScope(bool skipSaving) : CustomSaveStateScope(skipSaving, false) {
     public int[] selectedFloors = GetSelectedFloors();
 
     public static int[] GetSelectedFloors() {

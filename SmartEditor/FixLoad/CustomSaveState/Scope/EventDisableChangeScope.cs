@@ -8,7 +8,7 @@ public class EventDisableChangeScope : CustomSaveStateScope {
     public string key;
     public bool disable;
 
-    public EventDisableChangeScope(PropertyControl control) : base(false) {
+    public EventDisableChangeScope(PropertyControl control) : base(false, true) {
         @event = control.propertiesPanel.inspectorPanel.selectedEvent;
         key = control.propertyInfo.name;
         disable = @event.disabled[key];

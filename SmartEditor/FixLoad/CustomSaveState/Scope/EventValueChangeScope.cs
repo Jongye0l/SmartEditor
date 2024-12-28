@@ -8,7 +8,7 @@ public class EventValueChangeScope : CustomSaveStateScope {
     public string key;
     public object value;
 
-    public EventValueChangeScope(PropertyControl control) : base(false) {
+    public EventValueChangeScope(PropertyControl control) : base(false, true) {
         @event = control.propertiesPanel.inspectorPanel.selectedEvent;
         key = control.propertyInfo.name;
         value = @event[key];

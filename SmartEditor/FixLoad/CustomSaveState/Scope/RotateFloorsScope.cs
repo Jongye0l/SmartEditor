@@ -7,7 +7,7 @@ public class RotateFloorsScope : CustomSaveStateScope {
     public int seqID;
     public int size;
 
-    public RotateFloorsScope(int act) : base(false) {
+    public RotateFloorsScope(int act) : base(false, true) {
         List<scrFloor> selectedFloors = scnEditor.instance.selectedFloors;
         if(selectedFloors.Count > 0) {
             seqID = selectedFloors[0].seqID;
@@ -16,7 +16,7 @@ public class RotateFloorsScope : CustomSaveStateScope {
         this.act = (byte) act;
     }
 
-    public RotateFloorsScope(scrFloor floor, int act) : base(false) {
+    public RotateFloorsScope(scrFloor floor, int act) : base(false, true) {
         seqID = floor.seqID;
         size = 1;
         this.act = (byte) act;

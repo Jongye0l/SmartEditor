@@ -9,7 +9,7 @@ public class PasteHitSoundScope : CustomSaveStateScope {
     public LevelEvent previousHitsound;
     public bool previousNeed;
 
-    public PasteHitSoundScope(int seqId) : base(false) {
+    public PasteHitSoundScope(int seqId) : base(false, true) {
         this.seqId = seqId;
         copiedHitsound = FixPrivateMethod.copiedHitsound;
         previousNeed = seqId < scnEditor.instance.floors.Count - 2;

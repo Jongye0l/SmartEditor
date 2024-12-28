@@ -9,7 +9,7 @@ public class ShowPanelScope : CustomSaveStateScope {
     public LevelEventType eventType;
     public int index;
 
-    public ShowPanelScope(InspectorPanel panel, LevelEventType type) : base(false) {
+    public ShowPanelScope(InspectorPanel panel, LevelEventType type) : base(false, false) {
         this.panel = panel;
         if(panel == scnEditor.instance.settingsPanel) {
             eventType = lastPanel1;

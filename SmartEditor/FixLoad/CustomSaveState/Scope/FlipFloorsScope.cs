@@ -7,7 +7,7 @@ public class FlipFloorsScope : CustomSaveStateScope {
     public int seqID;
     public int size;
 
-    public FlipFloorsScope(bool horizontal) : base(false) {
+    public FlipFloorsScope(bool horizontal) : base(false, true) {
         List<scrFloor> selectedFloors = scnEditor.instance.selectedFloors;
         if(selectedFloors.Count > 0) {
             seqID = selectedFloors[0].seqID;
@@ -16,7 +16,7 @@ public class FlipFloorsScope : CustomSaveStateScope {
         this.horizontal = horizontal;
     }
 
-    public FlipFloorsScope(scrFloor floor, bool horizontal) : base(false) {
+    public FlipFloorsScope(scrFloor floor, bool horizontal) : base(false, true) {
         seqID = floor.seqID;
         size = 1;
         this.horizontal = horizontal;

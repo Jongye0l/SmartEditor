@@ -7,7 +7,7 @@ public class PasteFloorsScope : CustomSaveStateScope {
     public int seqID;
     public bool alsoDecorations;
 
-    public PasteFloorsScope(bool alsoDecorations) : base(false) {
+    public PasteFloorsScope(bool alsoDecorations) : base(false, true) {
         List<object> list = scnEditor.instance.clipboard;
         clipboard = new scnEditor.FloorData[list.Count];
         for(int i = 0; i < list.Count; i++) clipboard[i] = (scnEditor.FloorData) list[i];

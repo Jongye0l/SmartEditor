@@ -13,8 +13,8 @@ using UnityEngine;
 namespace SmartEditor.FixLoad.CustomSaveState;
 
 public class SaveStatePatch {
-    private static FieldInfo _saveStateLastFrame = SimpleReflect.Field(typeof(scnEditor), "saveStateLastFrame");
-    private static MethodInfo _unsavedChanges = typeof(scnEditor).Setter("unsavedChanges");
+    public static FieldInfo saveStateLastFrame = SimpleReflect.Field(typeof(scnEditor), "saveStateLastFrame");
+    public static MethodInfo unsavedChanges = typeof(scnEditor).Setter("unsavedChanges");
     public static List<ChangedEventCache> changedEvents = [];
     public static List<ChangedFloorCache> changedFloors = [];
     public static Dictionary<EventKey, EventValue> changedEventValues = new();
@@ -58,8 +58,8 @@ public class SaveStatePatch {
         if(undoStates.Count >= 100) undoStates.RemoveAt(0);
         undoStates.Add(currentState);
         if(clearRedo) redoStates.Clear();
-        _saveStateLastFrame.SetValue(editor, Time.frameCount);
-        if(dataHasChanged) _unsavedChanges.Invoke(editor, [true]);
+        saveStateLastFrame.SetValue(editor, Time.frameCount);
+        if(dataHasChanged) unsavedChanges.Invoke(editor, [true]);
         changedEvents.Clear();
         changedFloors.Clear();
         changedEventValues.Clear();

@@ -10,18 +10,18 @@ public class EventsChangeScope : CustomSaveStateScope {
     public int startEventCount;
     public bool delete;
 
-    public EventsChangeScope() : base(false) {
+    public EventsChangeScope() : base(false, true) {
         startEventCount = scnEditor.instance.events.Count;
         instance ??= this;
         decorations = [];
     }
 
-    public EventsChangeScope(LevelEvent @event, int index) : base(false) {
+    public EventsChangeScope(LevelEvent @event, int index) : base(false, true) {
         events = [];
         decorations = [ new DecorationCache(@event, index) ];
     }
 
-    public EventsChangeScope(LevelEvent @event) : base(false) {
+    public EventsChangeScope(LevelEvent @event) : base(false, true) {
         if(@event.IsDecoration) {
             events = [];
             decorations = [new DecorationCache(@event, scnEditor.instance.decorations.IndexOf(@event))];
@@ -32,7 +32,7 @@ public class EventsChangeScope : CustomSaveStateScope {
         delete = true;
     }
 
-    public EventsChangeScope(List<LevelEvent> events) : base(false) => SetEvents(events);
+    public EventsChangeScope(List<LevelEvent> events) : base(false, true) => SetEvents(events);
 
     public void SetEvents(List<LevelEvent> events) {
         this.events = events.ToArray();
