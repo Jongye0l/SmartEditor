@@ -13,7 +13,7 @@ public class InsertTileUpdate {
             levelMaker.leveldata = game.levelData.pathData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
             MakeLevel(floor); //game.levelMaker.MakeLevel();
-            ApplyEventsToFloors(floor); //game.ApplyEventsToFloors(levelMaker.listFloors);
+            game.ApplyEventsToFloors(levelMaker.listFloors);
             levelMaker.DrawHolds();
             levelMaker.DrawMultiPlanet();
             FixChartLoad.DrawEditor();
@@ -97,55 +97,5 @@ public class InsertTileUpdate {
                 fl.startPos += startAddedPos;
             }
         }
-    }
-
-    public static void ApplyEventsToFloors(int floor) {
-        scrLevelMaker levelMaker = scrLevelMaker.instance;
-        scrFloor prevFloor = levelMaker.listFloors[floor];
-        scrFloor curFloor = levelMaker.listFloors[floor + 1];
-        curFloor.numPlanets = prevFloor.numPlanets;
-        curFloor.isSafe = prevFloor.isSafe;
-        curFloor.auto = prevFloor.auto;
-        curFloor.showStatusText = prevFloor.showStatusText;
-        curFloor.hideJudgment = prevFloor.hideJudgment;
-        curFloor.hideIcon = prevFloor.hideIcon;
-        curFloor.marginScale = prevFloor.marginScale;
-        curFloor.lengthMult = prevFloor.lengthMult;
-        curFloor.widthMult = prevFloor.widthMult;
-        curFloor.planetEase = prevFloor.planetEase;
-        curFloor.planetEaseParts = prevFloor.planetEaseParts;
-        curFloor.planetEasePartBehavior = prevFloor.planetEasePartBehavior;
-        curFloor.stickToFloor = prevFloor.stickToFloor;
-        curFloor.customTexture = prevFloor.customTexture;
-        curFloor.customTextureScale = prevFloor.customTextureScale;
-        curFloor.outline = prevFloor.outline;
-        curFloor.SetColor(prevFloor.floorRenderer.deselectedColor);
-        curFloor.styleNum = prevFloor.styleNum;
-        curFloor.UpdateAngle();
-        curFloor.SetTrackStyle(prevFloor.initialTrackStyle, true);
-        ffxChangeTrack prevFloorTrack = prevFloor.GetComponent<ffxChangeTrack>();
-        if(prevFloorTrack) {
-            ffxChangeTrack curFloorTrack = curFloor.GetOrAddComponent<ffxChangeTrack>();
-            curFloorTrack.color1 = prevFloorTrack.color1;
-            curFloorTrack.color2 = prevFloorTrack.color2;
-            curFloorTrack.colorType = prevFloorTrack.colorType;
-            curFloorTrack.colorAnimDuration = prevFloorTrack.colorAnimDuration;
-            curFloorTrack.pulseType = prevFloorTrack.pulseType;
-            curFloorTrack.pulseLength = prevFloorTrack.pulseLength;
-            curFloorTrack.startOfColorChange = prevFloorTrack.startOfColorChange;
-            curFloorTrack.texture = prevFloorTrack.texture;
-            curFloorTrack.animationType = prevFloorTrack.animationType;
-            curFloorTrack.animationType2 = prevFloorTrack.animationType2;
-            curFloorTrack.tilesAhead = prevFloorTrack.tilesAhead;
-            curFloorTrack.tilesBehind = prevFloorTrack.tilesBehind;
-        }
-        curFloor.glowMultiplier = prevFloor.glowMultiplier;
-        curFloor.startScale = curFloor.transform.localScale = prevFloor.startScale;
-        curFloor.SetOpacity(prevFloor.opacity);
-        curFloor.opacityVal = prevFloor.opacityVal;
-        curFloor.rotationOffset = prevFloor.rotationOffset;
-        curFloor.SetRotation((curFloor.tweenRot - curFloor.startRot).z);
-        curFloor.stickToFloor = prevFloor.stickToFloor;
-        curFloor.radiusScale = prevFloor.radiusScale;
     }
 }
