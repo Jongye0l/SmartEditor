@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using ADOFAI;
 using ADOFAI.Editor.Actions;
+using ADOFAI.LevelEditor.Controls;
 using HarmonyLib;
 using JALib.Core.Patch;
 using JALib.Tools;
@@ -192,6 +193,8 @@ public class ScopePatch {
     [JAPatch(typeof(scnEditor), "DeselectDecoration", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "DeselectAllDecorations", PatchType.Transpiler, false)]
     [JAPatch(typeof(scnEditor), "SwitchToEditMode", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_DecorationsList), "Awake", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_List), "SelectItemsInRange", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> SelectDecoration(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
@@ -456,6 +459,61 @@ public class ScopePatch {
                 list[i - 3] = new CodeInstruction(OpCodes.Ldarg_1);
                 list[i] = new CodeInstruction(OpCodes.Newobj, typeof(ShowPanelScope).Constructor());
                 list.RemoveRange(i - 2, 2);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(PropertyControl_Bool), "SetValue", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Color), "OnChange", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_File), "OnRightClick", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_File), "ProcessFile", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_FloatPair), nameof(Save), PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_FloatPair), nameof(Save), PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_LongText), "Setup", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_MinMaxGradient), nameof(Save), PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Rating), "SetInt", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Text), "Setup", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Toggle), "SelectVar", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Vector2), "SetVectorVals", PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertyControl_Vector2Range), "SetVectorVals", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> Save(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_0;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventValueChangeScope).Constructor());
+                list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(PropertyControl_FilterProperties), nameof(ReloadFilterProperties), PatchType.Transpiler, false)]
+    [JAPatch(typeof(PropertiesPanel), "RenderControl", PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> ReloadFilterProperties(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_0;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(EventDisableChangeScope).Constructor());
+                list.RemoveRange(i - 3, 3);
+            }
+        }
+        return list;
+    }
+
+    [JAPatch(typeof(PropertyControl_List), nameof(EndDrag), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> EndDrag(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        for(int i = 0; i < list.Count; i++) {
+            CodeInstruction code = list[i];
+            if(code.opcode == OpCodes.Newobj && (ConstructorInfo) code.operand == typeof(SaveStateScope).Constructor()) {
+                list[i - 4].opcode = OpCodes.Ldarg_0;
+                list[i] = new CodeInstruction(OpCodes.Newobj, typeof(DecoDragScope).Constructor(typeof(PropertyControl_List)));
+                list.RemoveRange(i - 3, 3);
             }
         }
         return list;

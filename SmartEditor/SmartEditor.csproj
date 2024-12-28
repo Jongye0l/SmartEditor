@@ -507,12 +507,15 @@
         <Compile Include="FixLoad\CustomSaveState\FixPrivateMethod.cs" />
         <Compile Include="FixLoad\CustomSaveState\LevelState.cs" />
         <Compile Include="FixLoad\CustomSaveState\SaveStatePatch.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\DecoDragScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\DecorationLocationChangeScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\EventDisableChangeScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\EventsChangeScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\CreateFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\CustomSaveStateScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\DeleteFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\DeleteMultiFloorScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\EventValueChangeScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\FlipFloorsScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\PasteFloorsScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\PasteHitSoundScope.cs" />
