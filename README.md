@@ -11,7 +11,7 @@
 * 모든 타일 로딩되는 버그 수정
 ---
 ### 사용 방법 How to use
-* [이 링크](https://github.com/Jongye0l/AutoDiscord/releases/latest) 에서 다운로드 후 모드매니저를 통해 적용시키면 됩니다.
+* [이 링크](https://github.com/Jongye0l/SmartEditor/releases/latest) 에서 다운로드 후 모드매니저를 통해 적용시키면 됩니다.
 ---
 ### 개발 환경 Development environment
 * Windows 11
