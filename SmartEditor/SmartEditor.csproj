@@ -61,6 +61,9 @@
         <Reference Include="DOTweenPro">
             <HintPath>D:\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\DOTweenPro.dll</HintPath>
         </Reference>
+        <Reference Include="FlipAndRotateTiles">
+          <HintPath>D:\library\FlipAndRotateTiles.dll</HintPath>
+        </Reference>
         <Reference Include="I18N">
             <HintPath>D:\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\I18N.dll</HintPath>
         </Reference>
@@ -528,6 +531,8 @@
         <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />
+        <Compile Include="FixLoad\FlipAndRotateTilesAPI.cs" />
+        <Compile Include="FixLoad\FlipAndRotateTilesPatch.cs" />
         <Compile Include="FixLoad\FlipTileUpdate.cs" />
         <Compile Include="FixLoad\InsertTileUpdate.cs" />
         <Compile Include="FixLoad\PasteTileUpdate.cs" />

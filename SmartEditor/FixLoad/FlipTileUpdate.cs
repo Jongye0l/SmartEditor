@@ -12,6 +12,7 @@ public class FlipTileUpdate {
             levelMaker.leveldata = game.levelData.pathData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
             MakeLevel(floor, size, horizontal); //game.levelMaker.MakeLevel();
+            game.ApplyEventsToFloors(levelMaker.listFloors);
             levelMaker.DrawHolds();
             levelMaker.DrawMultiPlanet();
             FixChartLoad.DrawEditor();

@@ -12,6 +12,7 @@ public class RotateTileUpdate {
             levelMaker.leveldata = game.levelData.pathData;
             levelMaker.isOldLevel = game.levelData.isOldLevel;
             MakeLevel(floor, size, cw, is180); //game.levelMaker.MakeLevel();
+            game.ApplyEventsToFloors(levelMaker.listFloors);
             levelMaker.DrawHolds();
             levelMaker.DrawMultiPlanet();
             FixChartLoad.DrawEditor();
@@ -48,15 +49,16 @@ public class RotateTileUpdate {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         scrFloor prevFloor = levelMaker.listFloors[floor - 1];
         Vector3 original = prevFloor.startPos;
+        float movedAngle = FlipAndRotateTilesAPI.CheckMod() ? FlipAndRotateTilesAPI.CustomAngle ?? 90 : 90;
         for(int i = 0; i < size; i++) {
             scrFloor curFloor = levelMaker.listFloors[floor + i];
             if(!prevFloor.midSpin) {
-                SetupAngle(ref prevFloor.exitangle, cw, is180);
-                curFloor.floatDirection += is180 ? 180 : cw ? -90 : 90;
-                SetupAngle(ref curFloor.entryangle, cw, is180);
+                SetupAngle(ref prevFloor.exitangle, cw, is180, movedAngle);
+                curFloor.floatDirection += is180 ? movedAngle * 2 : cw ? -movedAngle : movedAngle;
+                SetupAngle(ref curFloor.entryangle, cw, is180, movedAngle);
                 if(curFloor.midSpin) {
                     curFloor.exitangle = curFloor.entryangle;
-                    SetupAngle(ref curFloor.exitangle, cw, is180);
+                    SetupAngle(ref curFloor.exitangle, cw, is180, movedAngle);
                 }
             }
             prevFloor = curFloor;
@@ -68,8 +70,12 @@ public class RotateTileUpdate {
             if(i < floor + size) {
                 bool last = i == floor + size - 1;
                 if(last) change = fl.startPos;
-                Vector3 pos = fl.startPos - original;
-                pos = is180 ? new Vector3(-pos.x, -pos.y, pos.z) : cw ? new Vector3(pos.y, -pos.x, pos.z) : new Vector3(-pos.y, pos.x, pos.z);
+                Vector3 pos;
+                if(movedAngle == 90) {
+                    pos = fl.startPos - original;
+                    pos = is180 ? new Vector3(-pos.x, -pos.y, pos.z) : cw ? new Vector3(pos.y, -pos.x, pos.z) : new Vector3(-pos.y, pos.x, pos.z);
+                } else pos = scrMisc.getVectorFromAngle(levelMaker.listFloors[i - 1].exitangle, scrController.instance.startRadius);
+                Main.Instance.Log(pos);
                 Vector3 added = fl.transform.position - fl.startPos;
                 fl.startPos = original + pos;
                 fl.transform.position = fl.startPos + added;
@@ -88,8 +94,9 @@ public class RotateTileUpdate {
         }
     }
 
-    private static void SetupAngle(ref double value, bool cw, bool is180) {
-        value += is180 ? 3.14159274101257325 : cw ? 1.570796370506286625 : -1.570796370506286625;
+    private static void SetupAngle(ref double value, bool cw, bool is180, float movedAngle) {
+        float multiplier = is180 ? movedAngle * 2 / 180 : (cw ? 1 : -1) * movedAngle / 180;
+        value += 3.14159274101257325 * multiplier;
         value %= 6.2831854820251465;
     }
 }

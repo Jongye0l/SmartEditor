@@ -12,13 +12,18 @@ using JALib.Tools;
 using SmartEditor.FixLoad.CustomSaveState;
 using SmartEditor.FixLoad.CustomSaveState.Scope;
 using UnityEngine;
+using UnityModManagerNet;
 
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
+    public static JAPatcher patcher;
+
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
-        SaveStatePatch.Patch(Patcher);
-        ScopePatch.Patch(Patcher);
+        patcher = Patcher;
+        SaveStatePatch.Patch(patcher);
+        ScopePatch.Patch(patcher);
+        FlipAndRotateTilesAPI.CheckMod();
     }
 
     protected override void OnGUI() {
@@ -288,4 +293,7 @@ public class FixChartLoad : Feature {
         }
         return codes;
     }
+
+    [JAPatch(typeof(UnityModManager.ModEntry), "Load", PatchType.Postfix, false)]
+    public static void ModLoadCheck() => FlipAndRotateTilesAPI.CheckMod();
 }
