@@ -33,9 +33,9 @@ public class SaveStatePatch {
 
     [JAPatch(typeof(scnEditor), nameof(SaveState), PatchType.Replace, false)]
     public static void SaveState(scnEditor __instance, bool clearRedo = false, bool dataHasChanged = true) {
-        Main.Instance.Warning("Old SaveState called! This should not be called! Please report this to the mod author!\n" + new StackTrace());
         scnEditor editor = __instance;
         if(editor.changingState != 0 || !editor.initialized) return;
+        Main.Instance.Warning("Old SaveState called! This should not be called! Please report this to the mod author!\n" + new StackTrace(2, true));
         int[] selectedFloors = null;
         if(!editor.SelectionIsEmpty())
             if(editor.SelectionIsSingle()) selectedFloors = [editor.selectedFloors[0].seqID];
