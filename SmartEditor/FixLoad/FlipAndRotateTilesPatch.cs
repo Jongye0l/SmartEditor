@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using JALib.Core.Patch;
+using JALib.Tools;
 using Patches = FlipAndRotateTiles.Patches;
 
 namespace SmartEditor.FixLoad;
@@ -14,7 +15,13 @@ public class FlipAndRotateTilesPatch {
 
     public static IEnumerable<CodeInstruction> Setup(IEnumerable<CodeInstruction> instructions, CodeInstruction code) {
         List<CodeInstruction> list = instructions.ToList();
-        for(int i = 0; i < list.Count; i++) {
+        list.InsertRange(0, [
+            new CodeInstruction(OpCodes.Ldsfld, SimpleReflect.Field(typeof(FlipAndRotateTilesPatch), "customRunner")),
+            code,
+            new CodeInstruction(OpCodes.And),
+            new CodeInstruction(OpCodes.Brfalse, list[^1].labels[0])
+        ]);
+        for(int i = 4; i < list.Count; i++) {
             CodeInstruction cur = list[i];
             if(cur.operand is MethodInfo { Name: "RemakePath" }) {
                 CodeInstruction prev = list[i - 3];
@@ -112,7 +119,7 @@ public class FlipAndRotateTilesPatch {
     }
 
     [JAPatch(typeof(Patches.RotateFloorPatch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> RotateFloorPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator) =>
+    public static IEnumerable<CodeInstruction> RotateFloorPatch(IEnumerable<CodeInstruction> instructions) =>
         Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_8));
 
     [JAPatch(typeof(scnEditor), nameof(RotateFloor), PatchType.Transpiler, false)]
@@ -142,7 +149,7 @@ public class FlipAndRotateTilesPatch {
     }
 
     [JAPatch(typeof(Patches.RotateFloor180Patch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> RotateFloor180Patch(IEnumerable<CodeInstruction> instructions, ILGenerator generator) =>
+    public static IEnumerable<CodeInstruction> RotateFloor180Patch(IEnumerable<CodeInstruction> instructions) =>
         Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_S, (sbyte) 16));
 
     [JAPatch(typeof(scnEditor), nameof(RotateFloor180), PatchType.Transpiler, false)]
