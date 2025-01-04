@@ -83,7 +83,7 @@ public class FlipAndRotateTilesPatch {
         }
     }
 
-    [JAPatch(typeof(Patches.RotateSelectionPatch), "Postfix", PatchType.Transpiler, false, Debug = true)]
+    [JAPatch(typeof(Patches.RotateSelectionPatch), "Postfix", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> RotateSelectionPatch(IEnumerable<CodeInstruction> instructions) =>
         Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_4));
 
