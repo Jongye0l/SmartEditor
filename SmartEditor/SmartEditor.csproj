@@ -505,6 +505,23 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AsyncLoad\ApplyMainThread.cs" />
+        <Compile Include="AsyncLoad\AsyncMapLoad.cs" />
+        <Compile Include="AsyncLoad\LoadScreen.cs" />
+        <Compile Include="AsyncLoad\LoadSequence.cs" />
+        <Compile Include="AsyncLoad\MainThreadEvent\AddCheckpoint.cs" />
+        <Compile Include="AsyncLoad\MainThreadEvent\ApplyFreeRoamEvent.cs" />
+        <Compile Include="AsyncLoad\MainThreadEvent\ApplyManyData.cs" />
+        <Compile Include="AsyncLoad\MainThreadEvent\ResetFreeFoam.cs" />
+        <Compile Include="AsyncLoad\Sequence\FloorShapeUpdate.cs" />
+        <Compile Include="AsyncLoad\Sequence\LoadDecoration.cs" />
+        <Compile Include="AsyncLoad\Sequence\MakePath.cs" />
+        <Compile Include="AsyncLoad\Sequence\ReadLevel.cs" />
+        <Compile Include="AsyncLoad\Sequence\LoadMap.cs" />
+        <Compile Include="AsyncLoad\Sequence\ReadTexture.cs" />
+        <Compile Include="AsyncLoad\Sequence\SetupEvent.cs" />
+        <Compile Include="AsyncLoad\Sequence\SetupEventMainThread.cs" />
+        <Compile Include="AsyncLoad\Sequence\SetupTileData.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedEventCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedFloorCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\FixPrivateMethod.cs" />

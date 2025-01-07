@@ -1,4 +1,5 @@
 ﻿using JALib.Core;
+using SmartEditor.AsyncLoad;
 using SmartEditor.FixLoad;
 
 namespace SmartEditor;
@@ -7,7 +8,7 @@ public class Main : JAMod {
     public static Main Instance;
 
     protected override void OnSetup() {
-        AddFeature(new FixChartLoad());
+        AddFeature(new FixChartLoad(), new AsyncMapLoad());
     }
 
     protected override void OnEnable() {
