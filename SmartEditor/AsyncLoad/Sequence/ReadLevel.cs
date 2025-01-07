@@ -52,6 +52,10 @@ public class ReadLevel : LoadSequence {
         try {
             if(readTask.IsFaulted) throw readTask.Exception.InnerException ?? readTask.Exception;
             JsonToken tokenType = jsonReader.TokenType;
+            if(tokenType == JsonToken.None) {
+                Dispose();
+                return;
+            }
             object value = jsonReader.Value;
             readTask = jsonReader.ReadAsync();
             action(tokenType, value);
@@ -65,11 +69,7 @@ public class ReadLevel : LoadSequence {
     }
 
     public void ReadActionName(JsonToken tokenType, object value) {
-        if(tokenType == JsonToken.StartObject) return;
-        if(tokenType == JsonToken.EndObject) {
-            Dispose();
-            return;
-        }
+        if(tokenType is JsonToken.StartObject or JsonToken.EndObject) return;
         if(tokenType != JsonToken.PropertyName) throw new Exception("Expected PropertyName");
         string propertyName = value as string;
         action = propertyName switch {
@@ -326,6 +326,5 @@ public class ReadLevel : LoadSequence {
     public override void Dispose() {
         base.Dispose();
         jsonReader?.Close();
-        makePath?.Dispose();
     }
 }
