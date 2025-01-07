@@ -82,6 +82,10 @@ public class LoadMap : LoadSequence {
         }
 
 StopLoading:
+        MainThread.Run(Main.Instance, ForceEnd);
+    }
+
+    private void ForceEnd() {
         LoadScreen.Hide();
         AsyncMapLoad.isLoading = false;
     }
