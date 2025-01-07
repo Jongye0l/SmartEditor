@@ -36,8 +36,8 @@ public class ReadLevel : LoadSequence {
                 return;
             }
             makePath = new MakePath();
-            StreamReader streamReader = new(path);
-            JsonTextReader jsonReader = new(streamReader);
+            streamReader = new StreamReader(path);
+            jsonReader = new JsonTextReader(streamReader);
             readTask = jsonReader.ReadAsync();
             action = ReadActionName;
             readTask.GetAwaiter().UnsafeOnCompleted(OnRead);
