@@ -59,7 +59,7 @@ public class SetupTileData : LoadSequence {
         scrFloor prevFloor = listFloors[0];
         Vector3 zero = prevFloor.transform.position;
 Restart:
-        for(;updatedTile < listFloors.Count; updatedTile++) {
+        for(;updatedTile < listFloors.Count - 1; updatedTile++) {
             SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
             double startRadius = scrController.instance.startRadius;
             float floorAngle = angleData[updatedTile];
@@ -85,11 +85,11 @@ Restart:
         SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
         bool end = false;
         lock(this) {
-            if(makePath.angleDataEnd && angleData.Count + 1 == listFloors.Count) end = true;
-            if(updatedTile >= listFloors.Count) currentSetup = false;
+            if(makePath.angleDataEnd && angleData.Count == updatedTile) end = true;
+            if(updatedTile >= listFloors.Count - 1) currentSetup = false;
             else goto Restart;
         }
-        if(end) return;
+        if(!end) return;
         SequenceText = Main.Instance.Localization["AsyncMapLoad.SetupLastTile"];
         prevFloor.isportal = true;
         prevFloor.levelnumber = Portal.EndOfLevel;
