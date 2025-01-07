@@ -220,8 +220,9 @@ public class ReadLevel : LoadSequence {
                 readTexture.AddRequest(str);
             }
             if(@event.IsDecoration) {
-                // Todo: Add decoration Texture
+                loadDecoration ??= new LoadDecoration();
                 scnEditor.instance.decorations.Add(@event);
+                loadDecoration.AddDecoration();
             } else scnEditor.instance.events.Add(@event);
             json.Clear();
         }
@@ -251,7 +252,7 @@ public class ReadLevel : LoadSequence {
         else if(tokenType == JsonToken.StartObject) {
             isAction = true;
             action = ReadEvent;
-            loadDecoration = new LoadDecoration();
+            loadDecoration ??= new LoadDecoration();
         }
     }
 
