@@ -65,13 +65,13 @@ public class ReadLevel : LoadSequence {
     }
 
     public void ReadActionName(JsonToken tokenType, object value) {
-        if(jsonReader.TokenType == JsonToken.StartObject) return;
-        if(jsonReader.TokenType == JsonToken.EndObject) {
+        if(tokenType == JsonToken.StartObject) return;
+        if(tokenType == JsonToken.EndObject) {
             Dispose();
             return;
         }
-        if(jsonReader.TokenType != JsonToken.PropertyName) throw new Exception("Expected PropertyName");
-        string propertyName = jsonReader.Value as string;
+        if(tokenType != JsonToken.PropertyName) throw new Exception("Expected PropertyName");
+        string propertyName = value as string;
         action = propertyName switch {
             "angleData" => ReadAngleData,
             "settings" => ReadSettings,
