@@ -284,6 +284,7 @@ public class ReadLevel : LoadSequence {
                 cachedListOrDict.TryPop(out value);
                 break;
         }
+        if(value is long l) value = (int) l;
         if(cachedListOrDict.Count == 0) {
             propertyNameList.TryPop(out string propertyName);
             json[propertyName] = value;
