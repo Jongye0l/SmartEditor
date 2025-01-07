@@ -1,8 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
+using Newtonsoft.Json;
 using SmartEditor.AsyncLoad.Sequence;
 
 namespace SmartEditor.AsyncLoad;
@@ -12,6 +17,10 @@ public class AsyncMapLoad : Feature {
     public static MethodInfo pauseIfUnpaused = typeof(scnEditor).Method("PauseIfUnpaused");
 
     public AsyncMapLoad() : base(Main.Instance, nameof(AsyncMapLoad), true, typeof(AsyncMapLoad)) {
+        foreach(Type type in typeof(JsonTextReader).GetNestedTypes(AccessTools.all)) {
+            if(!type.Name.Contains("<ParseObjectAsync>")) continue;
+            Patcher.AddPatch(FixParseJson, new JAPatchAttribute(type, "MoveNext", PatchType.Transpiler, false));
+        }
     }
 
     [JAPatch(typeof(scnEditor), nameof(LateUpdate), PatchType.Prefix, false, TryingCatch = false)]
@@ -49,6 +58,16 @@ public class AsyncMapLoad : Feature {
         if(!File.Exists(recentLevel) || checkCtrl && __instance.Invoke<bool>("OpenDirectory", recentLevel)) return;
         __instance.CheckUnsavedChanges(OpenRecentContinue);
     }
+
+    public static IEnumerable<CodeInstruction> FixParseJson(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> list = instructions.ToList();
+        foreach(CodeInstruction t in list)
+            if(t.operand is MethodInfo { Name: "IsWhiteSpace" })
+                t.operand = ((Delegate) FixedIsWhiteSpace).Method;
+        return list;
+    }
+
+    public static bool FixedIsWhiteSpace(char value) => char.IsWhiteSpace(value) || value == ',';
 
     private static void OpenRecentContinue() => InitOpen(Persistence.GetLastOpenedLevel());
 
