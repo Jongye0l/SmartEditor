@@ -14,6 +14,7 @@ public class SetupTileData : LoadSequence {
 
     public SetupTileData(MakePath makePath) {
         this.makePath = makePath;
+        SequenceText = Main.Instance.Localization["AsyncMapLoad.ResetTile"];
         MainThread.Run(Main.Instance, Init);
         floorShapeUpdate = new FloorShapeUpdate();
     }
@@ -49,6 +50,7 @@ public class SetupTileData : LoadSequence {
         AddTileCount();
         scnEditor.instance.SetValue("lastSelectedFloor", null);
         scnEditor.instance.SelectFirstFloor();
+        SequenceText = null;
     }
 
     public void SetupTile() {
