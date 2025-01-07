@@ -150,6 +150,7 @@ StopLoading:
         editor.isLoading = false;
         editor.CloseAllPanels();
         editor.Invoke("ShowImageLoadResult");
+        ForceEnd();
         Dispose();
     }
 
