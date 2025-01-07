@@ -289,7 +289,7 @@ public class ReadLevel : LoadSequence {
             propertyNameList.TryPop(out string propertyName);
             json[propertyName] = value;
         } else {
-            cachedListOrDict.TryPop(out object obj);
+            cachedListOrDict.TryPeek(out object obj);
             if(obj is List<object> list) list.Add(value);
             else if(obj is Dictionary<string, object> dict) {
                 propertyNameList.TryPop(out string propertyName);
