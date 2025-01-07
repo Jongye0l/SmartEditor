@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -258,25 +259,20 @@ public class ReadLevel : LoadSequence {
 #endregion
 
 #region ReadEvent
-    public List<object> cachedListOrDict = [];
+    public ConcurrentStack<object> cachedListOrDict = new();
     public Dictionary<string, object> json = new();
-    public string propertyName;
-    public readonly object noneObj = new();
+    public ConcurrentStack<string> propertyNameList = [];
 
     public void ReadEvent(JsonToken tokenType, object value) {
         switch(tokenType) {
             case JsonToken.PropertyName:
-                if(cachedListOrDict.Count == 0) propertyName = value as string;
-                else if(cachedListOrDict[^1] is Dictionary<string, object> dict) {
-                    dict[value as string] = noneObj;
-                    return;
-                }
+                propertyNameList.Push(value as string);
                 return;
             case JsonToken.StartObject:
-                cachedListOrDict.Add(new Dictionary<string, object>());
+                cachedListOrDict.Push(new Dictionary<string, object>());
                 return;
             case JsonToken.StartArray:
-                cachedListOrDict.Add(new List<object>());
+                cachedListOrDict.Push(new List<object>());
                 return;
             case JsonToken.EndObject:
             case JsonToken.EndArray:
@@ -285,17 +281,18 @@ public class ReadLevel : LoadSequence {
                     else action = ReadDecorations;
                     return;
                 }
-                value = cachedListOrDict[^1];
-                cachedListOrDict.RemoveAt(cachedListOrDict.Count - 1);
+                cachedListOrDict.TryPop(out value);
                 break;
         }
-        if(cachedListOrDict.Count == 0) json[propertyName] = value;
-        else if(cachedListOrDict[^1] is List<object> list) list.Add(value);
-        else if(cachedListOrDict[^1] is Dictionary<string, object> dict) {
-            foreach(KeyValuePair<string,object> valuePair in dict) {
-                if(valuePair.Value != noneObj) continue;
-                dict[valuePair.Key] = value;
-                return;
+        if(cachedListOrDict.Count == 0) {
+            propertyNameList.TryPop(out string propertyName);
+            json[propertyName] = value;
+        } else {
+            cachedListOrDict.TryPop(out object obj);
+            if(obj is List<object> list) list.Add(value);
+            else if(obj is Dictionary<string, object> dict) {
+                propertyNameList.TryPop(out string propertyName);
+                dict[propertyName] = value;
             }
         }
     }
