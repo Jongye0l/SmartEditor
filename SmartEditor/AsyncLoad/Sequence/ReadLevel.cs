@@ -246,7 +246,7 @@ public class ReadLevel : LoadSequence {
             loadDecoration.AddDecoration();
         }
         if(tokenType == JsonToken.EndArray) {
-            loadDecoration.LoadCompleteDecoration();
+            loadDecoration?.LoadCompleteDecoration();
             action = ReadActionName;
         }
         else if(tokenType == JsonToken.StartObject) {
