@@ -14,6 +14,7 @@ public class LoadScreen : MonoBehaviour {
     public static event Action OnRemove;
 
     private void Awake() {
+        instance = this;
         CreateCanvas();
         CreateBackground();
         CreateTitle();
@@ -78,7 +79,7 @@ public class LoadScreen : MonoBehaviour {
     }
 
     public static void Hide() {
-        if(instance) DestroyImmediate(instance);
+        if(instance) DestroyImmediate(instance.gameObject);
         instance = null;
     }
 
