@@ -228,7 +228,7 @@ public class ReadLevel : LoadSequence {
         }
         if(tokenType == JsonToken.EndArray) {
             action = ReadActionName;
-            readTexture.FinishLoad();
+            readTexture?.FinishLoad();
         } else if(tokenType == JsonToken.StartObject) {
             isAction = true;
             action = ReadEvent;
