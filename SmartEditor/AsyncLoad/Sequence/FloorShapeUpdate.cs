@@ -37,7 +37,7 @@ Restart:
             updating = false;
             end = finish;
         }
-        SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.UpdateShape"], updatedFloor, listFloors.Count);
+        SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.UpdateShape"], updatedFloor + 1, listFloors.Count);
         if(end) Dispose();
     }
 }

@@ -82,6 +82,7 @@ Restart:
             curFloor.offsetPos = Vector3.zero;
             prevFloor = curFloor;
         }
+        SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
         bool end = false;
         lock(this) {
             if(makePath.angleDataEnd && angleData.Count + 1 == listFloors.Count) end = true;
