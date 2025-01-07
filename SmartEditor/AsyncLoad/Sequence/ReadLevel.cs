@@ -11,7 +11,6 @@ namespace SmartEditor.AsyncLoad.Sequence;
 public class ReadLevel : LoadSequence {
     public string path;
     public LoadMap loadMap;
-    public StreamReader streamReader;
     public JsonTextReader jsonReader;
     public Task<bool> readTask;
     public Action<JsonToken, object> action;
@@ -36,8 +35,7 @@ public class ReadLevel : LoadSequence {
                 return;
             }
             makePath = new MakePath();
-            streamReader = new StreamReader(path);
-            jsonReader = new JsonTextReader(streamReader);
+            jsonReader = new JsonTextReader(new StreamReader(path));
             readTask = jsonReader.ReadAsync();
             action = ReadActionName;
             readTask.GetAwaiter().UnsafeOnCompleted(OnRead);
@@ -51,6 +49,7 @@ public class ReadLevel : LoadSequence {
 
     public void OnRead() {
         try {
+            if(readTask.IsFaulted) throw readTask.Exception.InnerException ?? readTask.Exception;
             JsonToken tokenType = jsonReader.TokenType;
             object value = jsonReader.Value;
             readTask = jsonReader.ReadAsync();
@@ -328,7 +327,6 @@ public class ReadLevel : LoadSequence {
 
     public override void Dispose() {
         base.Dispose();
-        streamReader?.Close();
         jsonReader?.Close();
         makePath?.Dispose();
     }
