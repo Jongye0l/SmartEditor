@@ -116,6 +116,7 @@ StopLoading:
         Resources.UnloadUnusedAssets();
         GC.Collect();
         new ReadLevel(this, levelPath).Read();
+        SequenceText = null;
     }
 
     public void OnRemove() {
