@@ -101,10 +101,10 @@ public class LoadScreen : MonoBehaviour {
     }
 
     private void Update() {
-        if(needApply) return;
+        if(!needApply) return;
         int i = 0;
         foreach(LoadSequence loadSequence in Sequence) {
-            if(loadSequence.SequenceText == null) continue;
+            if(loadSequence.SequenceText.IsNullOrEmpty()) continue;
             subText[i++].text = loadSequence.SequenceText;
             if(i > 4) break;
         }
