@@ -27,6 +27,7 @@ public class TileEntryTime : LoadSequence {
 
     public void ApplyEvent() {
         scrLevelMaker levelMaker = scrLevelMaker.instance;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         List<scrFloor> floors = levelMaker.listFloors;
 Restart1:
         if((setupEvent.coreEvent?.cur ?? floors.Count) < 2) {
@@ -41,7 +42,7 @@ Restart1:
         float pitch = conductor.song.pitch;
         scrFloor floor = floors[cur];
         if(cur == 0) {
-            SequenceText = string.Format(text, cur, setupEvent.updatedTile);
+            SequenceText = string.Format(text, cur, floorAngles.Count);
             entryTime = conductor.crotchetAtStart * (conductor.adjustedCountdownTicks - 1) + scrMisc.GetTimeBetweenAngles(floor.entryangle, floor.exitangle, floor.speed, conductor.bpm, !floor.isCCW);
             floor.entryTime = 0;
             floor.entryBeat = -1;
@@ -52,7 +53,7 @@ Restart1:
         }
 Restart2:
         for(; cur < Math.Min(setupEvent.coreEvent?.cur ?? int.MaxValue, floors.Count) - 1; cur++) {
-            SequenceText = string.Format(text, cur, floors.Count - 1);
+            SequenceText = string.Format(text, cur, floorAngles.Count);
             scrFloor nextFloor = floor.nextfloor;
             double num4 = scrMisc.GetInverseAnglePerBeatMultiplanet(floor.numPlanets) * (floor.isCCW ? -1.0 : 1.0);
             if(floor.midSpin) num4 = 0.0;
@@ -81,7 +82,7 @@ Restart2:
         }
         if(cur + 1 == floors.Count) Dispose();
         else SequenceText = string.Format(text, cur, floors.Count);
-        SequenceText = string.Format(text, cur, floors.Count - 1);
+        SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
     public override void Dispose() {
