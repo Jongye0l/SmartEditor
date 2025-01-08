@@ -30,14 +30,8 @@ public class MakePath : LoadSequence {
     }
 
     public void FinishEventLoad() {
-        bool run;
-        lock(this) {
-            run = setupTileData.SequenceText == null;
-            eventLoadComplete = true;
-            if(scrLevelMaker.instance.listFloors.Count > scnGame.instance.levelData.angleData.Count) return;
-        }
-        if(!run) return;
         setupEvent.Setup();
+        lock(this) eventLoadComplete = true;
     }
 
     public void FinishSettingLoad() {
@@ -89,7 +83,7 @@ Restart:
             listFloors.RemoveRange(angleCount, listFloors.Count - angleCount);
         }
         SequenceText = end ? null : string.Format(Main.Instance.Localization["AsyncMapLoad.MakeTileObject"], listFloors.Count, angleCount + '+');
-        if(SequenceText == null && eventLoadComplete) Dispose();
+        if(SequenceText == null) Dispose();
     }
 
     public override void Dispose() {
