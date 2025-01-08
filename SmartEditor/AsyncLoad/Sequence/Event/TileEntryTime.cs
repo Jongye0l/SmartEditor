@@ -51,7 +51,7 @@ Restart1:
             cur++;
         }
 Restart2:
-        for(; cur < Math.Min(setupEvent.coreEvent?.cur ?? int.MaxValue, floors.Count - 1); cur++) {
+        for(; cur < Math.Min(setupEvent.coreEvent?.cur ?? int.MaxValue, floors.Count) - 1; cur++) {
             SequenceText = string.Format(text, cur, floors.Count - 1);
             scrFloor nextFloor = floor.nextfloor;
             double num4 = scrMisc.GetInverseAnglePerBeatMultiplanet(floor.numPlanets) * (floor.isCCW ? -1.0 : 1.0);
