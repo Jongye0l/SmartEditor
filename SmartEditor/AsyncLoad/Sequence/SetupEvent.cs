@@ -31,7 +31,7 @@ public class SetupEvent : LoadSequence {
         LevelData levelData = scnGame.instance.levelData;
         List<LevelEvent> events = levelData.levelEvents;
         scrConductor.instance.countdownTicks = levelData.countdownTicks;
-        floorEvents = new List<LevelEvent>[floors.Count];
+        floorEvents = new List<LevelEvent>[levelData.angleData.Count + 1];
         for(int index = 0; index < floorEvents.Length; ++index) floorEvents[index] = [];
         foreach(LevelEvent levelEvent in events) floorEvents[levelEvent.floor].Add(levelEvent);
         coreEvent = new CoreEvent(this);

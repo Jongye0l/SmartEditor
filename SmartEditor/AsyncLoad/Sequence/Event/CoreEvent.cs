@@ -10,7 +10,6 @@ namespace SmartEditor.AsyncLoad.Sequence.Event;
 public class CoreEvent : LoadSequence {
     public SetupEvent setupEvent;
     public int cur;
-    public event Action<int> onApplyEvent;
     public bool running;
     public float speed;
     public bool isCCW;
