@@ -70,6 +70,7 @@ Restart:
             zero += vectorFromAngle;
             scrFloor curFloor = listFloors[updatedTile + 1];
             prevFloor.nextfloor = curFloor;
+            curFloor.prevfloor = prevFloor;
             curFloor.floatDirection = floorAngle;
             curFloor.seqID = updatedTile + 1;
             curFloor.entryangle = (angle + 3.1415927410125732) % 6.2831854820251465;
@@ -81,6 +82,7 @@ Restart:
             curFloor.tweenRot = curFloor.startRot = curFloor.transform.rotation.eulerAngles;
             curFloor.offsetPos = Vector3.zero;
             prevFloor = curFloor;
+            makePath.setupEvent.AddSetupTile(updatedTile);
         }
         SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
         bool end = false;
@@ -90,6 +92,7 @@ Restart:
             else goto Restart;
         }
         if(!end) return;
+        makePath.setupEvent.AddSetupTile(updatedTile);
         SequenceText = Main.Instance.Localization["AsyncMapLoad.SetupLastTile"];
         prevFloor.isportal = true;
         prevFloor.levelnumber = Portal.EndOfLevel;

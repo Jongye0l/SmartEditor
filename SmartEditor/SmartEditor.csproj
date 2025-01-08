@@ -513,6 +513,12 @@
         <Compile Include="AsyncLoad\MainThreadEvent\ApplyFreeRoamEvent.cs" />
         <Compile Include="AsyncLoad\MainThreadEvent\ApplyManyData.cs" />
         <Compile Include="AsyncLoad\MainThreadEvent\ResetFreeFoam.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\ConditionEvent.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\CoreEvent.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\EventIcon.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\FreeRoamEvent.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\GenericEvent.cs" />
+        <Compile Include="AsyncLoad\Sequence\Event\TileEntryTime.cs" />
         <Compile Include="AsyncLoad\Sequence\FloorShapeUpdate.cs" />
         <Compile Include="AsyncLoad\Sequence\LoadDecoration.cs" />
         <Compile Include="AsyncLoad\Sequence\MakePath.cs" />
