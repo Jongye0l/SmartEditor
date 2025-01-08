@@ -8,6 +8,7 @@ public abstract class LoadSequence : IDisposable {
     public string SequenceText {
         get => _sequenceText;
         set {
+            if(value == _sequenceText) return;
             _sequenceText = value;
             LoadScreen.UpdateSequence();
         }
