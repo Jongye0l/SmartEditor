@@ -20,7 +20,7 @@ public class SetupEvent : LoadSequence {
 
     public void AddSetupTile(int tile) {
         updatedTile = tile;
-        coreEvent.LoadEvent();
+        coreEvent?.LoadEvent();
     }
 
     public void Setup() {
