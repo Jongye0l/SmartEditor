@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ADOFAI;
 using DG.Tweening;
 using JALib.Tools;
@@ -9,22 +10,25 @@ namespace SmartEditor.AsyncLoad.Sequence.Event;
 
 public class FreeRoamEvent : LoadSequence {
     public SetupEvent setupEvent;
+    public int cur;
+    public int freeroamRegion;
 
     public FreeRoamEvent(SetupEvent setupEvent) {
         this.setupEvent = setupEvent;
+        setupEvent.setupEventMainThread.AddEvent(new ResetFreeFoam());
         JATask.Run(Main.Instance, ApplyEvent);
     }
 
     public void ApplyEvent() {
         List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
         List<scrFloor> floors = scrLevelMaker.instance.listFloors;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent4"];
-        setupEvent.setupEventMainThread.AddEvent(new ResetFreeFoam());
-        int freeroamRegion = 0;
-        foreach(scrFloor floor in floors) {
+        for(;cur < floors.Count; cur++) {
+            scrFloor floor = floors[cur];
             if(!floor.nextfloor) continue;
-            SequenceText = string.Format(text, floor.seqID, floors.Count - 1);
-            List<LevelEvent> levelEventList = floorEvents[floor.seqID];
+            SequenceText = string.Format(text, cur, floorAngles.Count);
+            List<LevelEvent> levelEventList = floorEvents[cur];
             List<LevelEvent> freeraomEvents = null;
             if(levelEventList == null) continue;
             foreach(LevelEvent levelEvent in levelEventList) {
@@ -50,7 +54,11 @@ public class FreeRoamEvent : LoadSequence {
             }
             if(freeraomEvents != null) setupEvent.setupEventMainThread.AddEvent(new ApplyFreeRoamEvent(floor, freeraomEvents));
         }
-        Dispose();
+        if(cur >= floorAngles.Count + 1) Dispose();
+        else {
+            SequenceText = string.Format(text, cur, floorAngles.Count);
+            Task.Yield().GetAwaiter().UnsafeOnCompleted(ApplyEvent);
+        }
     }
 
     public override void Dispose() {
