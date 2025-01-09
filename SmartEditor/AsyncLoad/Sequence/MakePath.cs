@@ -66,6 +66,7 @@ Restart:
             scrFloor floor = gameObject3.GetComponent<scrFloor>();
             listFloors.Add(floor);
             setupTileData.AddTileCount();
+            floor.GetOrAddComponent<ffxChangeTrack>();
         }
         bool end;
         lock(this) {
