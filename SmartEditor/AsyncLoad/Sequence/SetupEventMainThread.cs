@@ -1,24 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using JALib.Tools;
 
 namespace SmartEditor.AsyncLoad.Sequence;
 
 public class SetupEventMainThread : LoadSequence {
-    public List<ApplyMainThread> apply = [];
-    public int curApply;
-    public List<bool> requestApplySprite = [];
+    public ConcurrentQueue<ApplyMainThread> apply = [];
+    public ConcurrentQueue<bool> requestApplySprite = [];
     public int curApplySprite;
     public bool running;
     public bool finish;
 
 
     public void AddEvent(ApplyMainThread apply) {
-        this.apply.Add(apply);
+        this.apply.Enqueue(apply);
         CheckRunning();
     }
 
     public void AddRequestSprite(bool value) {
-        requestApplySprite.Add(value);
+        requestApplySprite.Enqueue(value);
         CheckRunning();
     }
 
@@ -39,24 +38,20 @@ public class SetupEventMainThread : LoadSequence {
 
     public void Run() {
 Restart:
-        for(; curApply < apply.Count; curApply++) apply[curApply].Run();
-        for(; curApplySprite < requestApplySprite.Count; curApplySprite++) {
+        while(apply.TryDequeue(out ApplyMainThread result)) result.Run();
+        for(; requestApplySprite.TryDequeue(out bool result); curApplySprite++) {
             scrFloor floor = scrLevelMaker.instance.listFloors[curApplySprite];
             floor.UpdateIconSprite();
-            floor.UpdateCommentGlow(scrController.instance.paused & requestApplySprite[curApply]);
+            floor.UpdateCommentGlow(scrController.instance.paused & result);
         }
-        if(curApply < apply.Count || curApplySprite < requestApplySprite.Count) goto Restart;
+        if(!apply.IsEmpty || !requestApplySprite.IsEmpty) goto Restart;
         bool end;
         lock(this) {
-            if(curApply < apply.Count || curApplySprite < requestApplySprite.Count) goto Restart;
+            if(!apply.IsEmpty || !requestApplySprite.IsEmpty) goto Restart;
             end = finish;
             running = false;
         }
         if(end) Dispose();
-        else {
-            int cur = curApply + curApplySprite;
-            int total = apply.Count + requestApplySprite.Count + scnGame.instance.levelData.levelEvents.Count;
-            SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.AddEvent"], cur, total);
-        }
+        else SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.AddEvent"], curApplySprite, scnGame.instance.levelData.angleData.Count + 1);
     }
 }
