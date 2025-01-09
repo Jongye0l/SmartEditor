@@ -9,8 +9,8 @@ public class FloorShapeUpdate : LoadSequence {
     public bool updating;
     public bool finish;
 
-    public void AddUpdateRequest() {
-        updateRequestFloor++;
+    public void AddUpdateRequest(int tile) {
+        updateRequestFloor = tile + 1;
         lock(this) {
             if(updating || updatedFloor >= updateRequestFloor) return;
             updating = true;
@@ -18,8 +18,8 @@ public class FloorShapeUpdate : LoadSequence {
         MainThread.Run(Main.Instance, UpdateFloorShape);
     }
 
-    public void AddLastRequest() {
-        AddUpdateRequest();
+    public void AddLastRequest(int tile) {
+        AddUpdateRequest(tile);
         finish = true;
     }
 
@@ -29,7 +29,6 @@ Restart:
         for(;updatedFloor < updateRequestFloor; updatedFloor++) {
             scrFloor floor = listFloors[updatedFloor];
             floor.UpdateAngle();
-            floor.GetOrAddComponent<ffxChangeTrack>();
         }
         bool end;
         lock(this) {
