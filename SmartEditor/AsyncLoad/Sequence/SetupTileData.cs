@@ -106,12 +106,7 @@ Restart:
         for(int i = 0; i < listFloors.Count; i++) listFloors[i].SetSortingOrder((100 + listFloors.Count - i) * 5);
         listFloors[^1].SpawnPortalParticles();
         // listFloor.SetTileColor(this.lm2.tilecolor);
-        bool finish;
-        lock(makePath) {
-            SequenceText = null;
-            finish = makePath.eventLoadComplete;
-        }
-        if(finish) JATask.Run(Main.Instance, makePath.FinishEventLoad);
+        SequenceText = null;
     }
 
     public override void Dispose() {

@@ -31,7 +31,6 @@ public class MakePath : LoadSequence {
 
     public void FinishEventLoad() {
         setupEvent.Setup();
-        lock(this) eventLoadComplete = true;
     }
 
     public void FinishSettingLoad() {
