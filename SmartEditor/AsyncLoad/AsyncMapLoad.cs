@@ -23,6 +23,7 @@ public class AsyncMapLoad : Feature {
         }
     }
 
+    [JAPatch(typeof(scnEditor), "Update", PatchType.Prefix, false, TryingCatch = false)]
     [JAPatch(typeof(scnEditor), nameof(LateUpdate), PatchType.Prefix, false, TryingCatch = false)]
     [JAPatch(typeof(scrFloor), "Update", PatchType.Prefix, false, TryingCatch = false)]
     [JAPatch(typeof(scrDecorationManager), nameof(LateUpdate), PatchType.Prefix, false, TryingCatch = false)]
