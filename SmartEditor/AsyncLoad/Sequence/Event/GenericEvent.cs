@@ -348,7 +348,7 @@ Restart:
         }
         ADOBase.customLevel.highestBPM = highestBpm;
         lock(this) {
-            if(cur < setupEvent.coreEvent.cur) goto Restart;
+            if(cur < (setupEvent.coreEvent?.cur ?? floors.Count)) goto Restart;
             running = false;
         }
         if(cur + 1 == floors.Count) {
