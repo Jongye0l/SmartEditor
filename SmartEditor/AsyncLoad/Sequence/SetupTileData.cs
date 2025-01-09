@@ -59,13 +59,13 @@ public class SetupTileData : LoadSequence {
         scrFloor prevFloor = listFloors[0];
         Vector3 zero = prevFloor.transform.position;
 Restart:
-        for(;updatedTile < listFloors.Count - 1; updatedTile++) {
-            SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
+        for(;updatedTile < Math.Min(angleData.Count, listFloors.Count - 1); updatedTile++) {
+            SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + (makePath.angleDataEnd ? "" : "+"));
             double startRadius = scrController.instance.startRadius;
             float floorAngle = angleData[updatedTile];
             double angle = floorAngle == 999.0 ? prevFloor.entryangle : (-(double) floorAngle + 90.0) * (Math.PI / 180.0);
             prevFloor.exitangle = angle;
-            floorShapeUpdate.AddUpdateRequest();
+            floorShapeUpdate.AddUpdateRequest(updatedTile);
             Vector3 vectorFromAngle = scrMisc.getVectorFromAngle(angle, startRadius);
             zero += vectorFromAngle;
             scrFloor curFloor = listFloors[updatedTile + 1];
@@ -88,7 +88,7 @@ Restart:
         bool end = false;
         lock(this) {
             if(makePath.angleDataEnd && angleData.Count == updatedTile) end = true;
-            if(updatedTile >= listFloors.Count - 1) currentSetup = false;
+            if(updatedTile >= Math.Min(angleData.Count, listFloors.Count - 1)) currentSetup = false;
             else goto Restart;
         }
         if(!end) return;
@@ -97,7 +97,7 @@ Restart:
         prevFloor.isportal = true;
         prevFloor.levelnumber = Portal.EndOfLevel;
         prevFloor.exitangle = prevFloor.entryangle + 3.1415927410125732;
-        floorShapeUpdate.AddLastRequest();
+        floorShapeUpdate.AddLastRequest(updatedTile);
         MainThread.Run(Main.Instance, SetupLastTile);
     }
 
