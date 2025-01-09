@@ -46,15 +46,14 @@ Restart1:
             entryTime = conductor.crotchetAtStart * (conductor.adjustedCountdownTicks - 1) + scrMisc.GetTimeBetweenAngles(floor.entryangle, floor.exitangle, floor.speed, conductor.bpm, !floor.isCCW);
             floor.entryTime = 0;
             floor.entryBeat = -1;
-            floor = floor.nextfloor;
+            floor = floors[++cur];
             floor.entryTime = entryTime;
             floor.entryTimePitchAdj = entryTime / pitch;
-            cur++;
         }
 Restart2:
         for(; cur < Math.Min(setupEvent.coreEvent?.cur ?? int.MaxValue, floors.Count) - 1; cur++) {
             SequenceText = string.Format(text, cur, floorAngles.Count);
-            scrFloor nextFloor = floor.nextfloor;
+            scrFloor nextFloor = floors[cur + 1];
             double num4 = scrMisc.GetInverseAnglePerBeatMultiplanet(floor.numPlanets) * (floor.isCCW ? -1.0 : 1.0);
             if(floor.midSpin) num4 = 0.0;
             if(floor.prevfloor.midSpin && floor.numPlanets > 2)
@@ -80,9 +79,8 @@ Restart2:
             if(cur < setupEvent.updatedTile) goto Restart2;
             running = false;
         }
-        if(cur + 1 == floors.Count) Dispose();
-        else SequenceText = string.Format(text, cur, floors.Count);
-        SequenceText = string.Format(text, cur, floorAngles.Count);
+        if(cur == floorAngles.Count) Dispose();
+        else SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
     public override void Dispose() {
