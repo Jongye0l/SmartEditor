@@ -6,7 +6,6 @@ using UnityEngine;
 namespace SmartEditor.AsyncLoad.Sequence;
 
 public class SetupTileData : LoadSequence {
-    public FloorShapeUpdate floorShapeUpdate;
     public MakePath makePath;
     public int updatedTile;
     public bool initialized;
@@ -16,7 +15,6 @@ public class SetupTileData : LoadSequence {
         this.makePath = makePath;
         SequenceText = Main.Instance.Localization["AsyncMapLoad.ResetTile"];
         MainThread.Run(Main.Instance, Init);
-        floorShapeUpdate = new FloorShapeUpdate();
     }
 
     public void AddTileCount() {
@@ -63,9 +61,9 @@ Restart:
             SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + (makePath.angleDataEnd ? "" : "+"));
             double startRadius = scrController.instance.startRadius;
             float floorAngle = angleData[updatedTile];
-            double angle = floorAngle == 999.0 ? prevFloor.entryangle : (-(double) floorAngle + 90.0) * (Math.PI / 180.0);
+            double angle = floorAngle == 999.0 ? prevFloor.entryangle : (-floorAngle + 90) * (Math.PI / 180);
             prevFloor.exitangle = angle;
-            floorShapeUpdate.AddUpdateRequest(updatedTile);
+            prevFloor.UpdateAngle();
             Vector3 vectorFromAngle = scrMisc.getVectorFromAngle(angle, startRadius);
             zero += vectorFromAngle;
             scrFloor curFloor = listFloors[updatedTile + 1];
@@ -84,7 +82,7 @@ Restart:
             prevFloor = curFloor;
             makePath.setupEvent.AddSetupTile(updatedTile);
         }
-        SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + 1 + (makePath.angleDataEnd ? "" : "+"));
+        SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + (makePath.angleDataEnd ? "" : "+"));
         bool end = false;
         lock(this) {
             if(makePath.angleDataEnd && angleData.Count == updatedTile) end = true;
@@ -97,7 +95,7 @@ Restart:
         prevFloor.isportal = true;
         prevFloor.levelnumber = Portal.EndOfLevel;
         prevFloor.exitangle = prevFloor.entryangle + 3.1415927410125732;
-        floorShapeUpdate.AddLastRequest(updatedTile);
+        prevFloor.UpdateAngle();
         MainThread.Run(Main.Instance, SetupLastTile);
     }
 
@@ -105,12 +103,6 @@ Restart:
         List<scrFloor> listFloors = scrLevelMaker.instance.listFloors;
         for(int i = 0; i < listFloors.Count; i++) listFloors[i].SetSortingOrder((100 + listFloors.Count - i) * 5);
         listFloors[^1].SpawnPortalParticles();
-        // listFloor.SetTileColor(this.lm2.tilecolor);
         SequenceText = null;
-    }
-
-    public override void Dispose() {
-        base.Dispose();
-        floorShapeUpdate?.Dispose();
     }
 }
