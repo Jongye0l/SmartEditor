@@ -519,7 +519,6 @@
         <Compile Include="AsyncLoad\Sequence\Event\FreeRoamEvent.cs" />
         <Compile Include="AsyncLoad\Sequence\Event\GenericEvent.cs" />
         <Compile Include="AsyncLoad\Sequence\Event\TileEntryTime.cs" />
-        <Compile Include="AsyncLoad\Sequence\FloorShapeUpdate.cs" />
         <Compile Include="AsyncLoad\Sequence\LoadDecoration.cs" />
         <Compile Include="AsyncLoad\Sequence\MakePath.cs" />
         <Compile Include="AsyncLoad\Sequence\ReadLevel.cs" />
