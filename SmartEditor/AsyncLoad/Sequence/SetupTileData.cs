@@ -41,7 +41,7 @@ public class SetupTileData : LoadSequence {
             floor.styleNum = 0;
             floor.tweenRot = floor.startRot = floor.transform.rotation.eulerAngles;
             floor.startPos = floor.offsetPos = Vector3.zero;
-            floor.gameObject.AddComponent<ffxCameraPlus>();
+            floor.GetOrAddComponent<ffxCameraPlus>();
             isFirst = false;
         }
         initialized = true;
