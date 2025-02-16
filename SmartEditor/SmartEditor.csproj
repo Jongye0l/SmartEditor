@@ -505,6 +505,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="BGAMod.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedEventCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedFloorCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\FixPrivateMethod.cs" />

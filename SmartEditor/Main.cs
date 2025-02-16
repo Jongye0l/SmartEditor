@@ -7,7 +7,7 @@ public class Main : JAMod {
     public static Main Instance;
 
     protected override void OnSetup() {
-        AddFeature(new FixChartLoad());
+        AddFeature(new FixChartLoad(), new BGAMod());
     }
 
     protected override void OnEnable() {
