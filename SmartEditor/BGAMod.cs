@@ -122,4 +122,7 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
         }
         return instructionList;
     }
+
+    [JAPatch(typeof(ffxChangeTrack), nameof(PrepFloor), PatchType.Prefix, false)]
+    public static bool PrepFloor() => false;
 }
