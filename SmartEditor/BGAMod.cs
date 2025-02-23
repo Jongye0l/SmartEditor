@@ -105,8 +105,8 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
         List<CodeInstruction> instructionList = instructions.ToList();
         for(int i = 0; i < instructionList.Count; i++) {
             if(instructionList[i].operand is not MethodInfo { Name: "SetActive" }) continue;
-            instructionList.RemoveRange(i - 3, 3);
-            instructionList[i] = new CodeInstruction(OpCodes.Pop);
+            instructionList.RemoveRange(i - 2, 3);
+            instructionList[i - 3] = new CodeInstruction(OpCodes.Pop);
         }
         return instructionList;
     }
@@ -117,8 +117,8 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
         List<CodeInstruction> instructionList = instructions.ToList();
         for(int i = 0; i < instructionList.Count; i++) {
             if(instructionList[i].operand is not MethodInfo { Name: "SetActive" }) continue;
-            instructionList.RemoveAt(i - 1);
-            instructionList[i] = new CodeInstruction(OpCodes.Pop);
+            instructionList.RemoveAt(i);
+            instructionList[i - 1] = new CodeInstruction(OpCodes.Pop);
         }
         return instructionList;
     }
