@@ -11,6 +11,12 @@ public class SpeedPauseConvertScope(LevelEvent oldEvent) : CustomSaveStateScope(
         scnEditor.instance.events.Remove(levelEvent);
         scnEditor.instance.events.Add(oldEvent);
         (oldEvent, levelEvent) = (levelEvent, oldEvent);
+        scnEditor editor = scnEditor.instance;
+        editor.levelEventsPanel.selectedEventType = levelEvent.eventType;
+        editor.DecideInspectorTabsAtSelected();
+        editor.levelEventsPanel.ShowPanel(levelEvent.eventType);
+        editor.ApplyEventsToFloors();
+        editor.ShowEventIndicators(editor.selectedFloors[0]);
     }
 
     public override void Redo() => Undo();
