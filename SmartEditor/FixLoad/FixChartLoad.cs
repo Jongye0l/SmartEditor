@@ -17,9 +17,11 @@ using UnityModManagerNet;
 namespace SmartEditor.FixLoad;
 
 public class FixChartLoad : Feature {
+    public static FixChartLoad instance;
     public static JAPatcher patcher;
 
     public FixChartLoad() : base(Main.Instance, nameof(FixChartLoad), true, typeof(FixChartLoad)) {
+        instance = this;
         patcher = Patcher;
         SaveStatePatch.Patch(patcher);
         ScopePatch.Patch(patcher);
