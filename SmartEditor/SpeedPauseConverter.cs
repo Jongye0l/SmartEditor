@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using ADOFAI;
 using ADOFAI.LevelEditor.Controls;
+using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
 using SmartEditor.FixLoad;
 using SmartEditor.FixLoad.CustomSaveState.Scope;
+using PropertyInfo = ADOFAI.PropertyInfo;
 
 namespace SmartEditor;
 
@@ -50,11 +55,14 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             export.exportButton.onClick.AddListener(ConvertPause);
             export.buttonText.text = Main.Instance.Localization["SpeedPauseConverter.ConvertPause"];
             convertPause = export;
-        } else if(__instance.propertyInfo.name == "ConvertSetSpeed") {
+            return;
+        }
+        if(__instance.propertyInfo.name == "ConvertSetSpeed") {
             export.exportButton.onClick.RemoveAllListeners();
             export.exportButton.onClick.AddListener(ConvertSetSpeed);
             export.buttonText.text = Main.Instance.Localization["SpeedPauseConverter.ConvertSetSpeed"];
             convertSetSpeed = export;
+            return;
         }
     }
 
@@ -124,7 +132,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
 
     [JAPatch(typeof(PropertyControl), nameof(UpdateEnabled), PatchType.Prefix, false)]
     private static bool UpdateEnabled(PropertyControl __instance) {
-        PropertyControl_Export export = __instance as PropertyControl_Export;
+        if(__instance is not PropertyControl_Export export) return true;
         if(export.propertyInfo.name == "ConvertPause") {
             int seqId = export.propertiesPanel.inspectorPanel.selectedEvent.floor;
             bool enable = true;
@@ -171,6 +179,19 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             export.SetEnabled(enable);
             return false;
         }
-        return true;
+        export.SetEnabled(true, SteamIntegration.initialized);
+        return false;
+    }
+
+    [JAPatch(typeof(PropertiesPanel), nameof(RenderControl), PatchType.Transpiler, false)]
+    private static IEnumerable<CodeInstruction> RenderControl(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> instructionList = instructions.ToList();
+        foreach(CodeInstruction t in instructionList) {
+            if(t.operand is not FieldInfo field || field != SimpleReflect.Field(typeof(SteamIntegration), "initialized")) continue;
+            t.opcode = OpCodes.Ldc_I4_1;
+            t.operand = null;
+            break;
+        }
+        return instructionList;
     }
 }
