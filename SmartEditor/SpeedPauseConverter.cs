@@ -55,14 +55,11 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             export.exportButton.onClick.AddListener(ConvertPause);
             export.buttonText.text = Main.Instance.Localization["SpeedPauseConverter.ConvertPause"];
             convertPause = export;
-            return;
-        }
-        if(__instance.propertyInfo.name == "ConvertSetSpeed") {
+        } else if(__instance.propertyInfo.name == "ConvertSetSpeed") {
             export.exportButton.onClick.RemoveAllListeners();
             export.exportButton.onClick.AddListener(ConvertSetSpeed);
             export.buttonText.text = Main.Instance.Localization["SpeedPauseConverter.ConvertSetSpeed"];
             convertSetSpeed = export;
-            return;
         }
     }
 
@@ -137,8 +134,11 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             int seqId = export.propertiesPanel.inspectorPanel.selectedEvent.floor;
             bool enable = true;
             bool firstSetSpeed = true;
-            scrFloor curFloor = scnEditor.instance.floors[seqId];
-            if(curFloor.prevfloor.speed > curFloor.speed) enable = false;
+            LevelEvent currentEvent = export.propertiesPanel.inspectorPanel.selectedEvent;
+            if((SpeedType) currentEvent["speedType"] == SpeedType.Bpm) {
+                scrFloor curFloor = scnEditor.instance.floors[seqId];
+                if(currentEvent.GetFloat("beatsPerMinute") / scnEditor.instance.levelData.bpm > curFloor.prevfloor.speed) enable = false;
+            } else if(currentEvent.GetFloat("bpmMultiplier") > 1) enable = false;
             foreach(LevelEvent evnt in scnEditor.instance.events) {
                 if(evnt.floor != seqId) continue;
                 switch(evnt.eventType) {
