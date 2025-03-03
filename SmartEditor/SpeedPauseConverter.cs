@@ -90,13 +90,13 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         scnEditor editor = ADOBase.editor;
         LevelEvent currentEvent = convertSetSpeed.propertiesPanel.inspectorPanel.selectedEvent;
         IDisposable scope = FixChartLoad.instance.Enabled ? new SpeedPauseConvertScope(currentEvent) : new SaveStateScope(editor);
-        try {
+        using(scope) {
             scrFloor curFloor = editor.floors[currentEvent.floor];
             scrFloor preFloor = curFloor.prevfloor;
             double angle = GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.SetSpeed);
-            levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / (currentEvent.GetFloat("duration") + (angle / 180)) * angle / 180);
+            levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / (currentEvent.GetFloat("duration") + angle / 180) * angle / 180);
             editor.events.Add(levelEvent);
             editor.levelEventsPanel.selectedEventType = LevelEventType.SetSpeed;
             editor.DecideInspectorTabsAtSelected();
@@ -104,8 +104,6 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             if(scope is SpeedPauseConvertScope speedScope) speedScope.levelEvent = levelEvent;
             editor.ApplyEventsToFloors();
             editor.ShowEventIndicators(editor.selectedFloors[0]);
-        } finally {
-            scope.Dispose();
         }
     }
 
