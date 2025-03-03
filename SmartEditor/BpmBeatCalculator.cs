@@ -125,7 +125,7 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
         scrFloor floor = scnEditor.instance.floors[speedEvent.floor];
         float realBPM = (float) (bpm / (floor.nextfloor ? Utility.GetAngle(floor) / 180 : 1));
         speedEvent["realBPM"] = realBPM;
-        panel.properties["realBPM"].control.text = Math.Round(realBPM, 4).ToString(CultureInfo.InvariantCulture);
+        panel.properties["realBPM"].control.text = Math.Round(realBPM, 6).ToString(CultureInfo.InvariantCulture);
     }
 
     [JAPatch(typeof(PropertyControl_Toggle), nameof(OnSelectedEventChanged), PatchType.Postfix, false)]
