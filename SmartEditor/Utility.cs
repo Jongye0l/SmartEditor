@@ -2,7 +2,7 @@
 
 namespace SmartEditor;
 
-public class Utility {
+public static class Utility {
     public static double GetAngle(scrFloor prevFloor) {
         scrFloor curFloor = prevFloor.nextfloor;
         double prevAngle = prevFloor.floatDirection;
