@@ -135,11 +135,12 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             bool enable = true;
             bool firstSetSpeed = true;
             LevelEvent currentEvent = export.propertiesPanel.inspectorPanel.selectedEvent;
+            scrFloor curFloor = scnEditor.instance.floors[seqId];
             if((SpeedType) currentEvent["speedType"] == SpeedType.Bpm) {
-                scrFloor curFloor = scnEditor.instance.floors[seqId];
                 if(currentEvent.GetFloat("beatsPerMinute") / scnEditor.instance.levelData.bpm > curFloor.prevfloor.speed) enable = false;
             } else if(currentEvent.GetFloat("bpmMultiplier") > 1) enable = false;
-            foreach(LevelEvent evnt in scnEditor.instance.events) {
+            if(!curFloor.nextfloor) enable = false;
+            if(enable) foreach(LevelEvent evnt in scnEditor.instance.events) {
                 if(evnt.floor != seqId) continue;
                 switch(evnt.eventType) {
                     case LevelEventType.SetSpeed:
@@ -160,7 +161,8 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         if(export.propertyInfo.name == "ConvertSetSpeed") {
             int seqId = export.propertiesPanel.inspectorPanel.selectedEvent.floor;
             bool enable = true;
-            foreach(LevelEvent evnt in scnEditor.instance.events) {
+            if(! scnEditor.instance.floors[seqId].nextfloor) enable = false;
+            else foreach(LevelEvent evnt in scnEditor.instance.events) {
                 if(evnt.floor != seqId) continue;
                 switch(evnt.eventType) {
                     case LevelEventType.SetSpeed:
