@@ -96,7 +96,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             double angle = GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.SetSpeed);
-            levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / currentEvent.GetFloat("duration") * angle / 180);
+            levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / (currentEvent.GetFloat("duration") + (angle / 180)) * angle / 180);
             editor.events.Add(levelEvent);
             editor.levelEventsPanel.selectedEventType = LevelEventType.SetSpeed;
             editor.DecideInspectorTabsAtSelected();
