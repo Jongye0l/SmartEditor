@@ -21,19 +21,19 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
 
     protected override void OnEnable() {
         LevelEventInfo levelEventInfo = GCS.levelEventsInfo["SetSpeed"];
-        if(levelEventInfo.propertiesInfo.ContainsKey("ConvertPause")) return;
         PropertyInfo propertyInfo = new(new Dictionary<string, object> {
             { "name", "ConvertPause" },
-            { "type", "Export" }
+            { "type", "Export" },
+            { "key", "jamod.SmartEditor." }
         }, levelEventInfo) {
             order = 0
         };
         levelEventInfo.propertiesInfo.TryAdd(propertyInfo.name, propertyInfo);
         levelEventInfo = GCS.levelEventsInfo["Pause"];
-        if(levelEventInfo.propertiesInfo.ContainsKey("ConvertSetSpeed")) return;
         propertyInfo = new PropertyInfo(new Dictionary<string, object> {
             { "name", "ConvertSetSpeed" },
-            { "type", "Export" }
+            { "type", "Export" },
+            { "key", "jamod.SmartEditor." }
         }, levelEventInfo) {
             order = 0
         };
@@ -70,7 +70,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         try {
             scrFloor curFloor = editor.floors[currentEvent.floor];
             scrFloor preFloor = curFloor.prevfloor;
-            double angle = GetAngle(curFloor);
+            double angle = Utility.GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.Pause);
             levelEvent["duration"] = (float) ((preFloor.speed / curFloor.speed - 1) * angle / 180);
@@ -93,7 +93,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         using(scope) {
             scrFloor curFloor = editor.floors[currentEvent.floor];
             scrFloor preFloor = curFloor.prevfloor;
-            double angle = GetAngle(curFloor);
+            double angle = Utility.GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.SetSpeed);
             levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / (currentEvent.GetFloat("duration") + angle / 180) * angle / 180);
@@ -105,26 +105,6 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
             editor.ApplyEventsToFloors();
             editor.ShowEventIndicators(editor.selectedFloors[0]);
         }
-    }
-
-    private static double GetAngle(scrFloor prevFloor) {
-        scrFloor curFloor = prevFloor.nextfloor;
-        double prevAngle = prevFloor.floatDirection;
-        if(prevAngle == 999) prevAngle = prevFloor.prevfloor.floatDirection + 180;
-        double curAngle = curFloor.floatDirection;
-        if(curAngle == 999) {
-            if(!curFloor.nextfloor) return 0;
-            curAngle = curFloor.nextfloor.floatDirection + 180;
-        }
-        return NormalizeAngle((180 + prevAngle - curAngle) * (curFloor.isCCW ? -1 : 1));
-    }
-
-    private static double NormalizeAngle(double angle) {
-        angle = Math.Round(angle, 4);
-        if(angle == 999) return angle;
-        while(angle < 0) angle += 360;
-        angle %= 360;
-        return angle == 0 ? 360 : angle;
     }
 
     [JAPatch(typeof(PropertyControl), nameof(UpdateEnabled), PatchType.Prefix, false)]

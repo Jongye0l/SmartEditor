@@ -7,7 +7,7 @@ public class Main : JAMod {
     public static Main Instance;
 
     protected override void OnSetup() {
-        AddFeature(new FixChartLoad(), new BGAMod(), new SpeedPauseConverter());
+        AddFeature(new FixChartLoad(), new BGAMod(), new SpeedPauseConverter(), new BpmBeatCalculator());
     }
 
     protected override void OnEnable() {

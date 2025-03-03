@@ -506,6 +506,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BGAMod.cs" />
+        <Compile Include="BpmBeatCalculator.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedEventCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\ChangedFloorCache.cs" />
         <Compile Include="FixLoad\CustomSaveState\FixPrivateMethod.cs" />
@@ -542,6 +543,7 @@
         <Compile Include="Main.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="SpeedPauseConverter.cs" />
+        <Compile Include="Utility.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
