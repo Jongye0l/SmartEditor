@@ -231,4 +231,12 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
                 return true;
         }
     }
+
+    [JAPatch(typeof(PropertiesPanel), nameof(SetProperties), PatchType.Postfix, false)]
+    private static void SetProperties(LevelEvent levelEvent, PropertiesPanel __instance) {
+        if(!__instance.properties.TryGetValue("durationAngle", out Property durationAngle)) return;
+        Property duration = __instance.properties["duration"];
+        durationAngle.control.text = duration.info.type == PropertyType.Int ? (int.Parse(duration.control.text) * (levelEvent.eventType == LevelEventType.Hold ? 360 : 180)).ToString() :
+                                         (float.Parse(duration.control.text) * 180).ToString();
+    }
 }
