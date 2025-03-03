@@ -26,7 +26,7 @@ public class CoreEvent : LoadSequence {
         speed = 1f;
         isCCW = false;
         scale = 1f;
-        planets = scrController.instance.planetsUsed = 2;
+        planets = ADOBase.controller.planetarySystem.planetsUsed = 2;
         tileWidth = tileLength = 1f;
         LoadEvent();
     }
@@ -144,7 +144,7 @@ Restart:
             floor.numPlanets = planets;
             floor.lengthMult = tileLength;
             floor.widthMult = tileWidth;
-            if(planets > scrController.instance.planetsUsed) scrController.instance.planetsUsed = planets;
+            if(planets > ADOBase.controller.planetarySystem.planetsUsed) ADOBase.controller.planetarySystem.planetsUsed = planets;
             setupEvent.OnCoreEventUpdate();
         }
         lock(this) {
