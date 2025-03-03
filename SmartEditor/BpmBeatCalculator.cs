@@ -18,6 +18,7 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
             { "name", "realBPM" },
             { "type", "Float" },
             { "default", 100f },
+            { "unit", "bpm" },
             { "key", "jamod.SmartEditor.BpmBeatCalculator.RealBPM" }
         }, levelEventInfo) {
             order = 0
