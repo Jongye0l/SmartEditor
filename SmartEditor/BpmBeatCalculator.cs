@@ -239,4 +239,10 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
         durationAngle.control.text = duration.info.type == PropertyType.Int ? (int.Parse(duration.control.text) * (levelEvent.eventType == LevelEventType.Hold ? 360 : 180)).ToString() :
                                          (float.Parse(duration.control.text) * 180).ToString();
     }
+
+    [JAPatch(typeof(LevelEvent), nameof(Encode), PatchType.Prefix, false)]
+    private static void Encode(LevelEvent __instance) {
+        __instance.data.Remove("realBPM");
+        __instance.data.Remove("durationAngle");
+    }
 }
