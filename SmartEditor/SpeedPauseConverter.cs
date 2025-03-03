@@ -110,9 +110,12 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
     private static double GetAngle(scrFloor prevFloor) {
         scrFloor curFloor = prevFloor.nextfloor;
         double prevAngle = prevFloor.floatDirection;
-        if(prevAngle == 999) prevAngle = prevFloor.prevfloor.floatDirection;
+        if(prevAngle == 999) prevAngle = prevFloor.prevfloor.floatDirection + 180;
         double curAngle = curFloor.floatDirection;
-        if(curAngle == 999) curAngle = curFloor.nextfloor?.floatDirection ?? prevAngle + 180;
+        if(curAngle == 999) {
+            if(!curFloor.nextfloor) return 0;
+            curAngle = curFloor.nextfloor.floatDirection + 180;
+        }
         return NormalizeAngle((180 + prevAngle - curAngle) * (curFloor.isCCW ? -1 : 1));
     }
 
