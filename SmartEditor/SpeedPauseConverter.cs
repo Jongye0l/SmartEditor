@@ -159,14 +159,9 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         if(export.propertyInfo.name == "ConvertSetSpeed") {
             int seqId = export.propertiesPanel.inspectorPanel.selectedEvent.floor;
             bool enable = true;
-            bool firstPause = true;
             foreach(LevelEvent evnt in scnEditor.instance.events) {
                 if(evnt.floor != seqId) continue;
                 switch(evnt.eventType) {
-                    case LevelEventType.Pause:
-                        if(firstPause) firstPause = false;
-                        else goto case LevelEventType.SetSpeed;
-                        break;
                     case LevelEventType.SetSpeed:
                     case LevelEventType.Hold:
                     case LevelEventType.FreeRoam:
