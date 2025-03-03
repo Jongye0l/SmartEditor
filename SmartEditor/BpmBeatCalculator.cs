@@ -160,6 +160,7 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
         scnEditor editor = scnEditor.instance;
         if(!editor.initialized) return;
         LevelEvent curEvent = __instance.propertiesPanel.inspectorPanel.selectedEvent;
+        if(curEvent.floor == -1) return;
         scrFloor curFloor = editor.floors[curEvent.floor];
         if(__instance.propertyInfo.levelEventInfo.type == LevelEventType.SetSpeed) {
             List<LevelEvent> levelEvents = editor.events.Where(editorEvent => editorEvent.floor == curFloor.seqID && editorEvent.eventType == LevelEventType.SetSpeed).ToList();
