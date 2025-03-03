@@ -70,7 +70,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         try {
             scrFloor curFloor = editor.floors[currentEvent.floor];
             scrFloor preFloor = curFloor.prevfloor;
-            double angle = GetAngle(curFloor, preFloor);
+            double angle = GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.Pause);
             levelEvent["duration"] = (float) ((preFloor.speed / curFloor.speed - 1) * angle / 180);
@@ -93,7 +93,7 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         try {
             scrFloor curFloor = editor.floors[currentEvent.floor];
             scrFloor preFloor = curFloor.prevfloor;
-            double angle = GetAngle(curFloor, preFloor);
+            double angle = GetAngle(curFloor);
             editor.events.Remove(currentEvent);
             LevelEvent levelEvent = typeof(LevelEvent).New<LevelEvent>(curFloor.seqID, LevelEventType.SetSpeed);
             levelEvent["beatsPerMinute"] = (float) (editor.levelData.bpm * preFloor.speed / currentEvent.GetFloat("duration") * angle / 180);
@@ -109,9 +109,10 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         }
     }
 
-    private static double GetAngle(scrFloor curFloor, scrFloor preFloor) {
-        double prevAngle = preFloor.floatDirection;
-        if(prevAngle == 999) prevAngle = preFloor.prevfloor.floatDirection;
+    private static double GetAngle(scrFloor prevFloor) {
+        scrFloor curFloor = prevFloor.nextfloor;
+        double prevAngle = prevFloor.floatDirection;
+        if(prevAngle == 999) prevAngle = prevFloor.prevfloor.floatDirection;
         double curAngle = curFloor.floatDirection;
         if(curAngle == 999) curAngle = curFloor.nextfloor?.floatDirection ?? prevAngle + 180;
         return NormalizeAngle((180 + prevAngle - curAngle) * (curFloor.isCCW ? -1 : 1));
