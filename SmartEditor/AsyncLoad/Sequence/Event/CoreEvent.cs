@@ -45,7 +45,7 @@ public class CoreEvent : LoadSequence {
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent2"];
         float bpm = scnGame.instance.levelData.bpm;
 Restart:
-        for(; cur < setupEvent.updatedTile; cur++) {
+        for(; cur < setupEvent.updatedTile + 1; cur++) {
             scrFloor floor = floors[cur];
             SequenceText = string.Format(text, cur, floors.Count);
             floor.extraBeats = 0.0f;
@@ -151,7 +151,7 @@ Restart:
             if(cur < setupEvent.updatedTile) goto Restart;
             running = false;
         }
-        if(cur + 1 == floors.Count) Dispose();
+        if(cur == scnGame.instance.levelData.angleData.Count) Dispose();
         else SequenceText = string.Format(text, cur, floors.Count);
     }
 
