@@ -27,14 +27,11 @@ public class SetupEvent : LoadSequence {
     public void Setup() {
         JALocalization localization = Main.Instance.Localization;
         SequenceText = localization["AsyncMapLoad.ApplyEvent"];
-        scrLevelMaker lm = scrLevelMaker.instance;
-        List<scrFloor> floors = lm.listFloors;
         LevelData levelData = scnGame.instance.levelData;
-        List<LevelEvent> events = levelData.levelEvents;
         scrConductor.instance.countdownTicks = levelData.countdownTicks;
         floorEvents = new List<LevelEvent>[levelData.angleData.Count + 1];
         for(int index = 0; index < floorEvents.Length; ++index) floorEvents[index] = [];
-        foreach(LevelEvent levelEvent in events) floorEvents[levelEvent.floor].Add(levelEvent);
+        foreach(LevelEvent levelEvent in levelData.levelEvents) floorEvents[levelEvent.floor].Add(levelEvent);
         coreEvent = new CoreEvent(this);
         freeRoamEvent = new FreeRoamEvent(this);
         eventIcon = new EventIcon(this);
