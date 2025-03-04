@@ -28,7 +28,6 @@ public class TileEntryTime : LoadSequence {
     }
 
     public void ApplyEvent() {
-        Main.Instance.Log("TileEntryTime: Hello");
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         List<float> floorAngles = scnGame.instance.levelData.angleData;
         List<scrFloor> floors = levelMaker.listFloors;
