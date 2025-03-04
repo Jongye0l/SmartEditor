@@ -45,17 +45,6 @@ public class SetupEvent : LoadSequence {
         ffxCameraPlus.legacyRelativeTo = levelData.legacyCamRelativeTo;
         scrVfx.instance.currentColourScheme.colourText = levelData.defaultTextColor;
         scrVfx.instance.currentColourScheme.colourTextShadow = levelData.defaultTextShadowColor;
-        if(scrController.instance.paused) return;
-        ffxCameraPlus camera = floors[0].GetComponent<ffxCameraPlus>();
-        floors[0].plusEffects.Insert(0, camera);
-        camera.startTime = 0.0;
-        camera.duration = 0.0f;
-        camera.targetPos = levelData.camPosition * 1.5f;
-        camera.targetRot = levelData.camRotation;
-        camera.targetZoom = levelData.camZoom / 100f;
-        camera.ease = Ease.Linear;
-        camera.movementType = levelData.camRelativeTo;
-        camera.dontDisable = levelData.camEnabledOnLowVFX;
         updated = true;
         Dispose();
         UpdateDispose();
@@ -67,7 +56,10 @@ public class SetupEvent : LoadSequence {
     }
 
     public void UpdateDispose() {
-        if(updated && coreEvent == null && tileEntryTime == null && genericEvent == null && freeRoamEvent == null && eventIcon == null && conditionEvent == null)
+        lock(this) {
+            if(setupEventMainThread == null || !updated || coreEvent != null || tileEntryTime != null || genericEvent != null || freeRoamEvent != null || eventIcon != null || conditionEvent != null) return;
             setupEventMainThread.End();
+            setupEventMainThread = null;
+        }
     }
 }
