@@ -54,7 +54,7 @@ public class SetupTileData : LoadSequence {
     public void SetupTile() {
         List<scrFloor> listFloors = scrLevelMaker.instance.listFloors;
         List<float> angleData = scnGame.instance.levelData.angleData;
-        scrFloor prevFloor = listFloors[0];
+        scrFloor prevFloor = listFloors[updatedTile];
         Vector3 zero = prevFloor.transform.position;
 Restart:
         for(;updatedTile < Math.Min(angleData.Count, listFloors.Count - 1); updatedTile++) {
