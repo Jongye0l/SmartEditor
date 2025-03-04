@@ -21,6 +21,7 @@ public class SetupEvent : LoadSequence {
     public void AddSetupTile(int tile) {
         updatedTile = tile;
         coreEvent?.LoadEvent();
+        eventIcon?.LoadEvent();
     }
 
     public void Setup() {

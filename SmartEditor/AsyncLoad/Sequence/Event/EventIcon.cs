@@ -29,10 +29,11 @@ public class EventIcon : LoadSequence {
     public void ApplyEvent() {
         List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
         List<scrFloor> floors = scrLevelMaker.instance.listFloors;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent5"];
 Restart:
         for(; cur < setupEvent.updatedTile; cur++) {
-            SequenceText = string.Format(text, cur, setupEvent.updatedTile);
+            SequenceText = string.Format(text, cur, floorAngles.Count);
             scrFloor floor = floors[cur];
             FloorIcon floorIcon = FloorIcon.None;
             List<LevelEvent> collection = floorEvents[floor.seqID];
@@ -130,8 +131,8 @@ Restart:
             if(cur < setupEvent.updatedTile) goto Restart;
             running = false;
         }
-        if(cur + 1 == floors.Count) Dispose();
-        else SequenceText = string.Format(text, cur, floors.Count);
+        if(cur == floorAngles.Count) Dispose();
+        else SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
     private static bool CheckActive(LevelEvent e) => e.active;
