@@ -151,8 +151,9 @@ Restart:
             if(cur < setupEvent.updatedTile) goto Restart;
             running = false;
         }
-        if(cur == scnGame.instance.levelData.angleData.Count) Dispose();
-        else SequenceText = string.Format(text, cur, floors.Count);
+        int max = scnGame.instance.levelData.angleData.Count + 1;
+        if(cur >= max) Dispose();
+        else SequenceText = string.Format(text, cur, max);
     }
 
     public override void Dispose() {
