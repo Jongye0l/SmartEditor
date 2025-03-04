@@ -62,7 +62,7 @@ public class SetupEvent : LoadSequence {
 
     public void OnCoreEventUpdate(int floor) {
         tileEntryTime?.LoadEvent(floor);
-        genericEvent?.LoadEvent();
+        genericEvent?.LoadEvent(floor);
     }
 
     public void UpdateDispose() {

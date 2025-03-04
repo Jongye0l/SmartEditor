@@ -14,6 +14,7 @@ public class GenericEvent : LoadSequence {
     public static MethodInfo DrawFloorNums = typeof(scnEditor).Method("DrawFloorNums");
     public SetupEvent setupEvent;
     public int cur;
+    public int max;
     public bool running;
     public Ease planetEase;
     public int planetEaseParts;
@@ -94,10 +95,11 @@ public class GenericEvent : LoadSequence {
         hideJudgement = false;
         hideTileIcon = false;
         highestBpm = 0;
-        LoadEvent();
+        LoadEvent(0);
     }
 
-    public void LoadEvent() {
+    public void LoadEvent(int floor) {
+        max = floor;
         lock(this) {
             if(running || cur >= setupEvent.coreEvent.cur) return;
             running = true;
@@ -108,12 +110,13 @@ public class GenericEvent : LoadSequence {
     public void ApplyEvent() {
         List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
         List<scrFloor> floors = scrLevelMaker.instance.listFloors;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent3"];
         float bpmPitch = scnGame.instance.levelData.bpm * scrConductor.instance.song.pitch * GCS.currentSpeedTrial;
 Restart:
-        for(; cur < (setupEvent.coreEvent?.cur ?? floors.Count); cur++) {
+        for(; cur < max; cur++) {
             scrFloor thisFloor = floors[cur];
-            SequenceText = string.Format(text, thisFloor.seqID, floors.Count);
+            SequenceText = string.Format(text, thisFloor.seqID, floorAngles.Count);
             if(isHold) {
                 tilePosition += holdDistance;
                 isHold = false;
@@ -348,10 +351,10 @@ Restart:
         }
         ADOBase.customLevel.highestBPM = highestBpm;
         lock(this) {
-            if(cur < (setupEvent.coreEvent?.cur ?? floors.Count)) goto Restart;
+            if(cur < max) goto Restart;
             running = false;
         }
-        if(cur + 1 == floors.Count) {
+        if(max == floorAngles.Count) {
             SequenceText = Main.Instance.Localization["AsyncMapLoad.ApplyEvent9"];
             MainThread.Run(Main.Instance, ApplyLast);
         } else SequenceText = string.Format(text, cur, floors.Count);
