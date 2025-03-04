@@ -145,7 +145,7 @@ Restart:
             floor.lengthMult = tileLength;
             floor.widthMult = tileWidth;
             if(planets > ADOBase.controller.planetarySystem.planetsUsed) ADOBase.controller.planetarySystem.planetsUsed = planets;
-            setupEvent.OnCoreEventUpdate();
+            setupEvent.OnCoreEventUpdate(cur);
         }
         lock(this) {
             if(cur < setupEvent.updatedTile) goto Restart;

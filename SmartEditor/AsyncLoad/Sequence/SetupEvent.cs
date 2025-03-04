@@ -60,8 +60,8 @@ public class SetupEvent : LoadSequence {
         UpdateDispose();
     }
 
-    public void OnCoreEventUpdate() {
-        tileEntryTime?.LoadEvent();
+    public void OnCoreEventUpdate(int floor) {
+        tileEntryTime?.LoadEvent(floor);
         genericEvent?.LoadEvent();
     }
 

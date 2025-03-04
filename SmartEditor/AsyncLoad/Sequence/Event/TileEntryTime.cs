@@ -7,6 +7,7 @@ namespace SmartEditor.AsyncLoad.Sequence.Event;
 public class TileEntryTime : LoadSequence {
     public SetupEvent setupEvent;
     public int cur;
+    public int max;
     public bool running;
     public double entryTime;
     public double entryBeat;
@@ -14,10 +15,11 @@ public class TileEntryTime : LoadSequence {
     public TileEntryTime(SetupEvent setupEvent) {
         this.setupEvent = setupEvent;
         scrLevelMaker.instance.highestBPM = 0;
-        LoadEvent();
+        LoadEvent(0);
     }
 
-    public void LoadEvent() {
+    public void LoadEvent(int floor) {
+        max = floor;
         lock(this) {
             if(running || cur >= setupEvent.updatedTile) return;
             running = true;
@@ -26,17 +28,10 @@ public class TileEntryTime : LoadSequence {
     }
 
     public void ApplyEvent() {
+        Main.Instance.Log("TileEntryTime: Hello");
         scrLevelMaker levelMaker = scrLevelMaker.instance;
         List<float> floorAngles = scnGame.instance.levelData.angleData;
         List<scrFloor> floors = levelMaker.listFloors;
-Restart1:
-        if((setupEvent.coreEvent?.cur ?? floors.Count) < 2) {
-            lock(this) {
-                if((setupEvent.coreEvent?.cur ?? floors.Count) < 2) goto Restart1;
-                running = false;
-            }
-            return;
-        }
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent6"];
         scrConductor conductor = ADOBase.conductor;
         float pitch = conductor.song.pitch;
@@ -51,7 +46,7 @@ Restart1:
             floor.entryTimePitchAdj = entryTime / pitch;
         }
 Restart2:
-        for(; cur < Math.Min(setupEvent.coreEvent?.cur ?? int.MaxValue, floors.Count) - 1; cur++) {
+        for(; cur < max; cur++) {
             SequenceText = string.Format(text, cur, floorAngles.Count);
             scrFloor nextFloor = floors[cur + 1];
             double num4 = scrMisc.GetInverseAnglePerBeatMultiplanet(floor.numPlanets) * (floor.isCCW ? -1.0 : 1.0);
@@ -76,10 +71,10 @@ Restart2:
             floor = nextFloor;
         }
         lock(this) {
-            if(cur < setupEvent.updatedTile) goto Restart2;
+            if(cur < max) goto Restart2;
             running = false;
         }
-        if(cur == floorAngles.Count) Dispose();
+        if(max == floorAngles.Count) Dispose();
         else SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
