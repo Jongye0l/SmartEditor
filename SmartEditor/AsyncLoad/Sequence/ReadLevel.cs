@@ -50,6 +50,7 @@ public class ReadLevel : LoadSequence {
 
     public void OnRead() {
         try {
+Restart:
             if(readTask.IsFaulted) throw readTask.Exception.InnerException ?? readTask.Exception;
             JsonToken tokenType = jsonReader.TokenType;
             if(tokenType == JsonToken.None) {
@@ -59,6 +60,7 @@ public class ReadLevel : LoadSequence {
             object value = jsonReader.Value;
             readTask = jsonReader.ReadAsync();
             action(tokenType, value);
+            if(readTask.IsCompleted) goto Restart;
             readTask.GetAwaiter().UnsafeOnCompleted(OnRead);
         } catch (Exception e) {
             Main.Instance.LogException(e);
@@ -246,10 +248,7 @@ public class ReadLevel : LoadSequence {
             json.Clear();
             loadDecoration.AddDecoration();
         }
-        if(tokenType == JsonToken.EndArray) {
-            loadDecoration?.LoadCompleteDecoration();
-            action = ReadActionName;
-        }
+        if(tokenType == JsonToken.EndArray) action = ReadActionName;
         else if(tokenType == JsonToken.StartObject) {
             isAction = true;
             action = ReadEvent;
@@ -325,6 +324,7 @@ public class ReadLevel : LoadSequence {
 #endregion
 
     public override void Dispose() {
+        loadDecoration?.LoadCompleteDecoration();
         base.Dispose();
         jsonReader?.Close();
     }

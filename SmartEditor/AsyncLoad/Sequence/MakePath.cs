@@ -9,7 +9,6 @@ public class MakePath : LoadSequence {
     public SetupEvent setupEvent;
     public bool makingPath;
     public bool angleDataEnd;
-    public bool eventLoadComplete;
 
     public MakePath() {
         ADOBase.conductor.onBeats.Clear();
