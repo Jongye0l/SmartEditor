@@ -84,9 +84,4 @@ Restart:
         SequenceText = end ? null : string.Format(Main.Instance.Localization["AsyncMapLoad.MakeTileObject"], listFloors.Count, angleCount + '+');
         if(SequenceText == null) Dispose();
     }
-
-    public override void Dispose() {
-        base.Dispose();
-        setupTileData.Dispose();
-    }
 }

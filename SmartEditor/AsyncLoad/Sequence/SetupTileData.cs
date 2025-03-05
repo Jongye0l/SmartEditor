@@ -103,6 +103,6 @@ Restart:
         List<scrFloor> listFloors = scrLevelMaker.instance.listFloors;
         for(int i = 0; i < listFloors.Count; i++) listFloors[i].SetSortingOrder((100 + listFloors.Count - i) * 5);
         listFloors[^1].SpawnPortalParticles();
-        SequenceText = null;
+        Dispose();
     }
 }
