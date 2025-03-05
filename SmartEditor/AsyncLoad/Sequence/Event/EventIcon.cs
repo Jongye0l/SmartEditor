@@ -10,16 +10,18 @@ namespace SmartEditor.AsyncLoad.Sequence.Event;
 public class EventIcon : LoadSequence {
     public SetupEvent setupEvent;
     public int cur;
+    public int max;
     public bool running;
     public int holdLength;
 
     public EventIcon(SetupEvent setupEvent) {
         this.setupEvent = setupEvent;
-        LoadEvent();
+        LoadEvent(0);
     }
 
-    public void LoadEvent() {
+    public void LoadEvent(int floor) {
         lock(this) {
+            max = floor;
             if(running || cur >= setupEvent.updatedTile) return;
             running = true;
         }
@@ -32,7 +34,7 @@ public class EventIcon : LoadSequence {
         List<float> floorAngles = scnGame.instance.levelData.angleData;
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent5"];
 Restart:
-        for(; cur < setupEvent.updatedTile; cur++) {
+        for(; cur <= max; cur++) {
             SequenceText = string.Format(text, cur, floorAngles.Count);
             scrFloor floor = floors[cur];
             FloorIcon floorIcon = FloorIcon.None;
@@ -128,7 +130,7 @@ Restart:
             setupEvent.setupEventMainThread.AddRequestSprite(comment);
         }
         lock(this) {
-            if(cur < setupEvent.updatedTile) goto Restart;
+            if(cur <= max) goto Restart;
             running = false;
         }
         if(cur >= floorAngles.Count) Dispose();
