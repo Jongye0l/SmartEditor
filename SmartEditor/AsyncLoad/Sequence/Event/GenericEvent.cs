@@ -114,7 +114,7 @@ public class GenericEvent : LoadSequence {
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent3"];
         float bpmPitch = scnGame.instance.levelData.bpm * scrConductor.instance.song.pitch * GCS.currentSpeedTrial;
 Restart:
-        for(; cur < max; cur++) {
+        for(; cur <= max; cur++) {
             scrFloor thisFloor = floors[cur];
             SequenceText = string.Format(text, thisFloor.seqID, floorAngles.Count);
             if(isHold) {
@@ -351,7 +351,7 @@ Restart:
         }
         ADOBase.customLevel.highestBPM = highestBpm;
         lock(this) {
-            if(cur < max) goto Restart;
+            if(cur <= max) goto Restart;
             running = false;
         }
         if(max == floorAngles.Count) {
