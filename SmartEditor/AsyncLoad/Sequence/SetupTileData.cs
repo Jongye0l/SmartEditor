@@ -55,7 +55,7 @@ public class SetupTileData : LoadSequence {
         List<scrFloor> listFloors = scrLevelMaker.instance.listFloors;
         List<float> angleData = scnGame.instance.levelData.angleData;
         scrFloor prevFloor = listFloors[updatedTile];
-        Vector3 zero = prevFloor.transform.position;
+        Vector3 position = prevFloor.startPos;
 Restart:
         for(;updatedTile < Math.Min(angleData.Count, listFloors.Count - 1); updatedTile++) {
             SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.CalcTile"], updatedTile, angleData.Count + (makePath.angleDataEnd ? "" : "+"));
@@ -65,7 +65,7 @@ Restart:
             prevFloor.exitangle = angle;
             prevFloor.UpdateAngle();
             Vector3 vectorFromAngle = scrMisc.getVectorFromAngle(angle, startRadius);
-            zero += vectorFromAngle;
+            position += vectorFromAngle;
             scrFloor curFloor = listFloors[updatedTile + 1];
             prevFloor.nextfloor = curFloor;
             curFloor.prevfloor = prevFloor;
@@ -76,7 +76,7 @@ Restart:
             curFloor.speed = 1f;
             if(floorAngle == 999.0) prevFloor.midSpin = true;
             curFloor.styleNum = 0;
-            curFloor.startPos = zero;
+            curFloor.startPos = position;
             curFloor.tweenRot = curFloor.startRot = curFloor.transform.rotation.eulerAngles;
             curFloor.offsetPos = Vector3.zero;
             prevFloor = curFloor;
