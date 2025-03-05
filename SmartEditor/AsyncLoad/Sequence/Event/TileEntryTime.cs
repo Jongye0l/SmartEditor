@@ -19,8 +19,8 @@ public class TileEntryTime : LoadSequence {
     }
 
     public void LoadEvent(int floor) {
-        max = floor;
         lock(this) {
+            max = floor;
             if(running || cur >= setupEvent.updatedTile) return;
             running = true;
         }

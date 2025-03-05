@@ -99,8 +99,8 @@ public class GenericEvent : LoadSequence {
     }
 
     public void LoadEvent(int floor) {
-        max = floor;
         lock(this) {
+            max = floor;
             if(running || cur >= setupEvent.coreEvent.cur) return;
             running = true;
         }
