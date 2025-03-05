@@ -131,7 +131,7 @@ Restart:
             if(cur < setupEvent.updatedTile) goto Restart;
             running = false;
         }
-        if(cur == floorAngles.Count) Dispose();
+        if(cur >= floorAngles.Count) Dispose();
         else SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
