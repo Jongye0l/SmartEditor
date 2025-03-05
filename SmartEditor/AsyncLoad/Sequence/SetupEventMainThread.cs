@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using JALib.Tools;
 
 namespace SmartEditor.AsyncLoad.Sequence;
@@ -37,21 +40,31 @@ public class SetupEventMainThread : LoadSequence {
     }
 
     public void Run() {
-Restart:
-        while(apply.TryDequeue(out ApplyMainThread result)) result.Run();
-        for(; requestApplySprite.TryDequeue(out bool result); curApplySprite++) {
-            scrFloor floor = scrLevelMaker.instance.listFloors[curApplySprite];
-            floor.UpdateIconSprite();
-            floor.UpdateCommentGlow(scrController.instance.paused & result);
+        try {
+            Restart:
+            while(apply.TryDequeue(out ApplyMainThread result)) result.Run();
+            List<scrFloor> floors = scrLevelMaker.instance.listFloors;
+            for(; curApplySprite < floors.Count && requestApplySprite.TryDequeue(out bool result); curApplySprite++) {
+                scrFloor floor = floors[curApplySprite];
+                floor.UpdateIconSprite();
+                floor.UpdateCommentGlow(scrController.instance.paused & result);
+            }
+            if(!apply.IsEmpty) goto Restart;
+            if(!requestApplySprite.IsEmpty) {
+                if(curApplySprite < floors.Count) goto Restart;
+                Task.Yield().GetAwaiter().UnsafeOnCompleted(Run);
+                return;
+            }
+            bool end;
+            lock(this) {
+                if(!apply.IsEmpty || !requestApplySprite.IsEmpty) goto Restart;
+                end = finish;
+                running = false;
+            }
+            if(end) Dispose();
+            else SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.AddEvent"], curApplySprite, scnGame.instance.levelData.angleData.Count + 1);
+        } catch (Exception e) {
+            Main.Instance.LogReportException(e);
         }
-        if(!apply.IsEmpty || !requestApplySprite.IsEmpty) goto Restart;
-        bool end;
-        lock(this) {
-            if(!apply.IsEmpty || !requestApplySprite.IsEmpty) goto Restart;
-            end = finish;
-            running = false;
-        }
-        if(end) Dispose();
-        else SequenceText = string.Format(Main.Instance.Localization["AsyncMapLoad.AddEvent"], curApplySprite, scnGame.instance.levelData.angleData.Count + 1);
     }
 }
