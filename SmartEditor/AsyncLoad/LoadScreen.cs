@@ -104,7 +104,7 @@ public class LoadScreen : MonoBehaviour {
         if(!needApply) return;
         int count = 0;
         foreach(LoadSequence loadSequence in Sequence) {
-            if(loadSequence.SequenceText.IsNullOrEmpty()) continue;
+            if(loadSequence == null || loadSequence.SequenceText.IsNullOrEmpty()) continue;
             subText[count++].text = loadSequence.SequenceText;
             if(count >= 4) break;
         }

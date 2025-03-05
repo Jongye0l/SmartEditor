@@ -120,7 +120,7 @@ StopLoading:
     }
 
     public void OnRemove() {
-        if(LoadScreen.instance.Sequence.Count != 1) return;
+        if(LoadScreen.instance.Sequence.Count > 1) return;
         LoadAfter(true, LoadResult.Successful, null);
     }
 
@@ -156,8 +156,8 @@ StopLoading:
     }
 
     public override void Dispose() {
-        base.Dispose();
         LoadScreen.OnRemove -= OnRemove;
+        base.Dispose();
     }
 
     private class LoadAfterValues(LoadMap loadMap, bool complete, LoadResult status, string errorMessage) {
