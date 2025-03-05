@@ -42,12 +42,13 @@ public class CoreEvent : LoadSequence {
     public void ApplyEvent() {
         List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
         List<scrFloor> floors = scrLevelMaker.instance.listFloors;
+        List<float> floorAngles = scnGame.instance.levelData.angleData;
         string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent2"];
         float bpm = scnGame.instance.levelData.bpm;
 Restart:
         for(; cur < setupEvent.updatedTile + 1; cur++) {
             scrFloor floor = floors[cur];
-            SequenceText = string.Format(text, cur, floors.Count);
+            SequenceText = string.Format(text, cur, floorAngles.Count);
             floor.extraBeats = 0.0f;
             List<LevelEvent> floorEvent = floorEvents[cur];
             List<LevelEvent> setSpeedEvent = floorEvent.FindAll(e => e.active && e.eventType == LevelEventType.SetSpeed);
@@ -148,12 +149,11 @@ Restart:
             setupEvent.OnCoreEventUpdate(cur);
         }
         lock(this) {
-            if(cur < setupEvent.updatedTile) goto Restart;
+            if(cur < setupEvent.updatedTile + 1) goto Restart;
             running = false;
         }
-        int max = scnGame.instance.levelData.angleData.Count + 1;
-        if(cur >= max) Dispose();
-        else SequenceText = string.Format(text, cur, max);
+        if(cur > floorAngles.Count) Dispose();
+        else SequenceText = string.Format(text, cur, floorAngles.Count);
     }
 
     public override void Dispose() {
