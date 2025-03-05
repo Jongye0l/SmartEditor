@@ -46,8 +46,8 @@ Restart:
         bool end;
         lock(this) {
             if(cur < decorations.Count) goto Restart;
-            running = false;
             end = loadComplete;
+            running = !end;
         }
         if(end) Dispose();
     }
