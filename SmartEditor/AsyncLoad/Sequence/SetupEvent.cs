@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ADOFAI;
-using DG.Tweening;
 using JALib.Core;
 using SmartEditor.AsyncLoad.Sequence.Event;
 
@@ -16,6 +15,7 @@ public class SetupEvent : LoadSequence {
     public ConditionEvent conditionEvent;
     public List<LevelEvent>[] floorEvents;
     public int updatedTile;
+    public bool setupWork;
     public bool updated;
 
     public void AddSetupTile(int tile) {
@@ -25,6 +25,10 @@ public class SetupEvent : LoadSequence {
     }
 
     public void Setup() {
+        lock(this) {
+            if(setupWork) return;
+            setupWork = true;
+        }
         JALocalization localization = Main.Instance.Localization;
         SequenceText = localization["AsyncMapLoad.ApplyEvent"];
         LevelData levelData = scnGame.instance.levelData;
