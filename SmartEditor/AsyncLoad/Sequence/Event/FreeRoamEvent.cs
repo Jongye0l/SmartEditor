@@ -23,7 +23,6 @@ public class FreeRoamEvent : LoadSequence {
 
     public void ApplyEvent() {
         try {
-            Main.Instance.Log("FreeRoamEvent: Hello");
             List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
             List<scrFloor> floors = scrLevelMaker.instance.listFloors;
             List<float> floorAngles = scnGame.instance.levelData.angleData;
