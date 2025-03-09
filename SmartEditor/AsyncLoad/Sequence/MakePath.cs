@@ -8,13 +8,12 @@ using Object = UnityEngine.Object;
 namespace SmartEditor.AsyncLoad.Sequence;
 
 public class MakePath : LoadSequence {
-    public SetupTileData setupTileData;
     public SetupEvent setupEvent;
     public bool angleDataEnd;
 
     public MakePath() {
         ADOBase.conductor.onBeats.Clear();
-        setupTileData = new SetupTileData(this);
+        _ = new SetupTileData(this);
         setupEvent = new SetupEvent();
         MainThread.Run(Main.Instance, MakeTile);
     }

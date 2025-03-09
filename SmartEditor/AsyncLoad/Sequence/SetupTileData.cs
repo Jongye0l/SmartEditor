@@ -59,6 +59,10 @@ Restart:
                 position += vectorFromAngle;
                 scrFloor curFloor = listFloors[updatedTile + 1];
                 prevFloor.nextfloor = curFloor;
+                if(!curFloor) {
+                    updatedTile--;
+                    continue;
+                }
                 if(!curFloor.editorNumText) {
                     curFloor.Reset();
                     curFloor.editorNumText = curFloor.GetComponentInChildren<scrLetterPress>(true);
