@@ -99,7 +99,6 @@ Restart:
             return;
         }
         angleData.Add(Convert.ToSingle(value));
-        makePath.AddTileCount();
     }
 
 #endregion

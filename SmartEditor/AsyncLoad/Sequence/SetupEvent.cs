@@ -18,16 +18,9 @@ public class SetupEvent : LoadSequence {
     public bool setupWork;
     public bool updated;
 
-    public void AddSetupTile(int tile) {
-        updatedTile = tile;
-        coreEvent?.LoadEvent();
-    }
-
     public void Setup() {
-        lock(this) {
-            if(setupWork) return;
-            setupWork = true;
-        }
+        if(setupWork) return;
+        setupWork = true;
         JALocalization localization = Main.Instance.Localization;
         SequenceText = localization["AsyncMapLoad.ApplyEvent"];
         LevelData levelData = scnGame.instance.levelData;
@@ -51,16 +44,13 @@ public class SetupEvent : LoadSequence {
     }
 
     public void OnCoreEventUpdate(int floor) {
-        eventIcon?.LoadEvent(floor);
         tileEntryTime?.LoadEvent(floor);
         genericEvent?.LoadEvent(floor);
     }
 
     public void UpdateDispose() {
-        lock(this) {
-            if(setupEventMainThread == null || !updated || coreEvent != null || tileEntryTime != null || genericEvent != null || freeRoamEvent != null || eventIcon != null || conditionEvent != null) return;
-            setupEventMainThread.End();
-            setupEventMainThread = null;
-        }
+        if(setupEventMainThread == null || !updated || coreEvent != null || tileEntryTime != null || genericEvent != null || freeRoamEvent != null || eventIcon != null || conditionEvent != null) return;
+        setupEventMainThread.End();
+        setupEventMainThread = null;
     }
 }
