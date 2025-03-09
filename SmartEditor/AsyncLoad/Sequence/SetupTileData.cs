@@ -76,7 +76,7 @@ Restart:
                 curFloor.speed = 1f;
                 curFloor.styleNum = 0;
                 curFloor.startPos = position;
-                curFloor.tweenRot = curFloor.startRot = curFloor.transform.rotation.eulerAngles;
+                curFloor.tweenRot = curFloor.startRot = Vector3.zero;
                 curFloor.offsetPos = Vector3.zero;
                 prevFloor = curFloor;
                 makePath.setupEvent.updatedTile = updatedTile;
