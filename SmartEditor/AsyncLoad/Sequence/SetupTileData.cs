@@ -54,11 +54,12 @@ Restart:
                 float floorAngle = angleData[updatedTile];
                 double angle = floorAngle == 999.0 ? prevFloor.entryangle : (-floorAngle + 90) * (Math.PI / 180);
                 prevFloor.exitangle = angle;
-                prevFloor.UpdateAngle();
                 Vector3 vectorFromAngle = scrMisc.getVectorFromAngle(angle, startRadius);
                 position += vectorFromAngle;
                 scrFloor curFloor = listFloors[updatedTile + 1];
                 prevFloor.nextfloor = curFloor;
+                if(floorAngle == 999.0) prevFloor.midSpin = true;
+                prevFloor.UpdateAngle();
                 if(!curFloor) {
                     updatedTile--;
                     continue;
@@ -73,7 +74,6 @@ Restart:
                 curFloor.entryangle = (angle + 3.1415927410125732) % 6.2831854820251465;
                 curFloor.isCCW = false;
                 curFloor.speed = 1f;
-                if(floorAngle == 999.0) prevFloor.midSpin = true;
                 curFloor.styleNum = 0;
                 curFloor.startPos = position;
                 curFloor.tweenRot = curFloor.startRot = curFloor.transform.rotation.eulerAngles;
