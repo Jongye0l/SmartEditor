@@ -9,13 +9,11 @@ namespace SmartEditor.AsyncLoad.Sequence.Event;
 
 public class EventIcon : LoadSequence {
     public SetupEvent setupEvent;
-    public CoreEvent coreEvent;
     public int cur;
     public int holdLength;
 
     public EventIcon(SetupEvent setupEvent) {
         this.setupEvent = setupEvent;
-        coreEvent = setupEvent.coreEvent;
         Task.Run(ApplyEvent);
     }
 
@@ -24,9 +22,9 @@ public class EventIcon : LoadSequence {
             List<LevelEvent>[] floorEvents = setupEvent.floorEvents;
             List<scrFloor> floors = scrLevelMaker.instance.listFloors;
             List<float> floorAngles = scnGame.instance.levelData.angleData;
-            string text = Main.Instance.Localization["AsyncMapLoad.ApplyEvent5"];
+            string text = Main.Instance.Localization["AsyncMapLoad.EventIconSetup"];
 Restart:
-            for(; cur < coreEvent.cur; cur++) {
+            for(; cur < (setupEvent.coreEvent?.cur ?? floorAngles.Count); cur++) {
                 SequenceText = string.Format(text, cur, floorAngles.Count);
                 scrFloor floor = floors[cur];
                 FloorIcon floorIcon = FloorIcon.None;
@@ -122,7 +120,7 @@ Restart:
                 if(!floor.usedCustomFloorIcon) floor.floorIcon = floorIcon;
                 setupEvent.setupEventMainThread.AddRequestSprite(comment);
             }
-            if(cur <= coreEvent.cur) goto Restart;
+            if(cur < (setupEvent.coreEvent?.cur ?? floorAngles.Count)) goto Restart;
             if(cur >= floorAngles.Count) Dispose();
             else {
                 SequenceText = string.Format(text, cur, floorAngles.Count);
