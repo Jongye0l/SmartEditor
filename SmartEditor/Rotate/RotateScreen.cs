@@ -36,24 +36,24 @@ public class RotateScreen : Feature {
     protected override void OnGUI() {
         SettingGUI settingGUI = Main.settingGUI;
         JALocalization localization = Main.Instance.Localization;
-        settingGUI.AddSettingFloat(ref settings.rotateAngle, 30, ref angleText, localization["RotateAngle"], 0, 360);
-        GUILayout.Label(localization["KeyModifier"]);
+        settingGUI.AddSettingFloat(ref settings.rotateAngle, 30, ref angleText, localization["RotateScreen.Angle"], 0, 360);
+        GUILayout.Label(localization["RotateScreen.KeyModifier"]);
         foreach(KeyModifier modifier in keyModifiers) {
             bool value = settings.addedKey.HasFlag(modifier);
             bool temp = value;
-            settingGUI.AddSettingToggle(ref value, localization["KeyModifier." + modifier]);
+            settingGUI.AddSettingToggle(ref value, modifier.ToString());
             if(temp != value) {
                 if(value) settings.addedKey |= KeyModifier.Shift;
                 else settings.addedKey &= ~KeyModifier.Shift;
             }
         }
         GUILayout.BeginHorizontal();
-        GUILayout.Label(localization["KeyModifier.MinusKey"]);
+        GUILayout.Label(localization["RotateScreen.MinusKey"]);
         if(GUILayout.Button(Bold(settings.minusKey.ToString(), changedKey == 1))) changedKey = (byte) (changedKey == 1 ? 0 : 1);
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
-        GUILayout.Label(localization["KeyModifier.PlusKey"]);
+        GUILayout.Label(localization["RotateScreen.PlusKey"]);
         if(GUILayout.Button(Bold(settings.plusKey.ToString(), changedKey == 2))) changedKey = (byte) (changedKey == 2 ? 0 : 2);
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
