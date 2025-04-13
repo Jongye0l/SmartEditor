@@ -55,7 +55,7 @@ public class InsertTileUpdate {
         float prevFloorAngle = floorAngles[floor];
         double prevAngle = prevFloorAngle == 999.0 ? prevFloor.entryangle : (-prevFloorAngle + 90.0) * (Math.PI / 180.0);
         prevFloor.exitangle = prevAngle;
-        Vector3 startAddedPos = scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius);
+        Vector3 startAddedPos = scrMisc.getVectorFromAngle(prevAngle, FixChartLoad.GetRadius());
         Vector3 addedPos = startAddedPos * prevFloor.radiusScale;
         GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.transform.position + addedPos, Quaternion.identity);
         newFloorObj.transform.parent = floorsTransform;

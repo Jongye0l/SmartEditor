@@ -68,7 +68,7 @@ public class PasteTileUpdate {
             float prevFloorAngle = floorAngles[floor + i];
             double prevAngle = prevFloorAngle == 999.0 ? prevFloor.entryangle : (-prevFloorAngle + 90.0) * (Math.PI / 180.0);
             prevFloor.exitangle = prevAngle;
-            GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.startPos + scrMisc.getVectorFromAngle(prevAngle, scrController.instance.startRadius), Quaternion.identity);
+            GameObject newFloorObj = UnityEngine.Object.Instantiate(levelMaker.meshFloor, prevFloor.startPos + scrMisc.getVectorFromAngle(prevAngle, FixChartLoad.GetRadius()), Quaternion.identity);
             newFloorObj.transform.parent = floorsTransform;
             curFloor = newFloorObj.GetComponent<scrFloor>();
             floors[i] = curFloor;

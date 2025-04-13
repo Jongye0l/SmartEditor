@@ -74,7 +74,7 @@ public class RotateTileUpdate {
                 if(movedAngle == 90) {
                     pos = fl.startPos - original;
                     pos = is180 ? new Vector3(-pos.x, -pos.y, pos.z) : cw ? new Vector3(pos.y, -pos.x, pos.z) : new Vector3(-pos.y, pos.x, pos.z);
-                } else pos = scrMisc.getVectorFromAngle(levelMaker.listFloors[i - 1].exitangle, scrController.instance.startRadius);
+                } else pos = scrMisc.getVectorFromAngle(levelMaker.listFloors[i - 1].exitangle, FixChartLoad.GetRadius());
                 Vector3 added = fl.transform.position - fl.startPos;
                 fl.startPos = original + pos;
                 fl.transform.position = fl.startPos + added;

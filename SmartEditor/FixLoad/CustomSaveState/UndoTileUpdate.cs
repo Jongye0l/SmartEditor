@@ -135,7 +135,7 @@ public class UndoTileUpdate {
             if(updatedFloors.Contains(fl)) {
                 scrFloor prev = levelMaker.listFloors[i - 1];
                 addedPos = fl.startPos;
-                Vector3 newPos = scrMisc.getVectorFromAngle(prev.exitangle, scrController.instance.startRadius);
+                Vector3 newPos = scrMisc.getVectorFromAngle(prev.exitangle, FixChartLoad.GetRadius());
                 fl.startPos = prev.startPos + newPos;
                 addedPos = fl.startPos - addedPos;
             } else fl.startPos += addedPos;
