@@ -299,7 +299,7 @@ public class FixChartLoad : Feature {
     [JAPatch(typeof(UnityModManager.ModEntry), "Load", PatchType.Postfix, false)]
     public static void ModLoadCheck() => FlipAndRotateTilesAPI.CheckMod();
 
-    private static MethodInfo GetRadiusMethod = typeof(scrController).PropertyGetter(VersionControl.releaseNumber < 134 ? "startRadius" : "tileSize");
+    private static MethodInfo GetRadiusMethod = SimpleReflect.Property(typeof(scrController), VersionControl.releaseNumber < 134 ? "startRadius" : "tileSize").GetGetMethod();
 
     public static double GetRadius() => GetRadiusMethod.Invoke<float>(scrController.instance);
 }
