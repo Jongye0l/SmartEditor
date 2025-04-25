@@ -90,16 +90,19 @@ public class RotateScreen : Feature {
 
     [JAPatch(typeof(CreateFloorWithCharOrAngleEditorAction), nameof(CreateFloorWithCharOrAngleEditorAction.Execute), PatchType.Prefix, false)]
     public static void CreateFloorPrefix(ref float ___angle) {
+        if(___angle == 999) return;
         ___angle = (___angle - data.angle + 360) % 360;
     }
 
     [JAPatch(typeof(CreateFloorWithCharOrAngleEditorAction), nameof(CreateFloorWithCharOrAngleEditorAction.Execute), PatchType.Postfix, false)]
     public static void CreateFloorPostfix(ref float ___angle) {
+        if(___angle == 999) return;
         ___angle = (___angle + data.angle) % 360;
     }
 
     [JAPatch(typeof(scrLevelMaker), nameof(GetAngleFromFloorCharDirectionWithCheck), PatchType.Postfix, false)]
     public static void GetAngleFromFloorCharDirectionWithCheck(bool exists, ref float __result) {
+        if(__result == 999) return;
         if(exists) __result = (__result - data.angle + 360) % 360;
     }
 
