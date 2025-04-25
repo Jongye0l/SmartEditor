@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using ADOFAI;
 using ADOFAI.Editor;
 using ADOFAI.Editor.Actions;
+using HarmonyLib;
 using JALib.Core;
 using JALib.Core.Patch;
 using JALib.Tools;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SmartEditor.Rotate;
 
@@ -30,7 +36,11 @@ public class RotateScreen : Feature {
     }
 
     protected override void OnDisable() {
-        if(scnEditor.instance && scrController.instance.paused) scnEditor.instance.RemakePath();
+        if(scnEditor.instance && scrController.instance.paused) {
+            Object.DestroyImmediate(data);
+            data = null;
+            scnEditor.instance.RemakePath();
+        }
     }
 
     protected override void OnGUI() {
@@ -42,10 +52,9 @@ public class RotateScreen : Feature {
             bool value = settings.addedKey.HasFlag(modifier);
             bool temp = value;
             settingGUI.AddSettingToggle(ref value, modifier.ToString());
-            if(temp != value) {
-                if(value) settings.addedKey |= KeyModifier.Shift;
-                else settings.addedKey &= ~KeyModifier.Shift;
-            }
+            if(temp == value) continue;
+            if(value) settings.addedKey |= KeyModifier.Shift;
+            else settings.addedKey &= ~KeyModifier.Shift;
         }
         GUILayout.BeginHorizontal();
         GUILayout.Label(localization["RotateScreen.MinusKey"]);
@@ -77,7 +86,6 @@ public class RotateScreen : Feature {
     [JAPatch(typeof(scnEditor), nameof(Awake), PatchType.Postfix, false)]
     public static void Awake(scnEditor __instance) {
         data = __instance.GetOrAddComponent<RotateData>();
-        data.angle = 0;
     }
 
     [JAPatch(typeof(scnEditor), nameof(SwitchToEditMode), PatchType.Postfix, false)]
@@ -118,5 +126,21 @@ public class RotateScreen : Feature {
     [JAPatch(typeof(scnEditor), nameof(UpdateDirectionButton), PatchType.Prefix, false)]
     public static void UpdateDirectionButton(ref float oppositeAngle) {
         oppositeAngle = (oppositeAngle + data.angle) % 360;
+    }
+
+    [JAPatch(typeof(scnEditor), nameof(HandleMouseActions), PatchType.Transpiler, false)]
+    private static IEnumerable<CodeInstruction> HandleMouseActions(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> codeInstructions = instructions.ToList();
+        foreach(CodeInstruction t in codeInstructions)
+            if(t.operand is MethodInfo { Name: "Angle" }) t.operand = ((Delegate) HandleMouseAngle).Method;
+        return codeInstructions;
+    }
+
+    private static float HandleMouseAngle(Vector3 from, Vector3 to) {
+        float angle = Vector3.Angle(from, to);
+        if(to.x < 0) angle = 360 - angle;
+        angle = (angle + data.angle) % 360;
+        if(to.x < 0) angle = 360 - angle;
+        return angle;
     }
 }
