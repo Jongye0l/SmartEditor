@@ -21,6 +21,9 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
 
     protected override void OnEnable() {
         LevelEventInfo levelEventInfo = GCS.levelEventsInfo["SetSpeed"];
+        List<PropertyInfo> propertyInfos = levelEventInfo.propertiesInfo.Values.ToList();
+        levelEventInfo.propertiesInfo.Clear();
+        foreach(PropertyInfo info in propertyInfos) levelEventInfo.propertiesInfo.TryAdd(info.name, info);
         PropertyInfo propertyInfo = new(new Dictionary<string, object> {
             { "name", "ConvertPause" },
             { "type", "Export" },
@@ -30,6 +33,9 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
         };
         levelEventInfo.propertiesInfo.TryAdd(propertyInfo.name, propertyInfo);
         levelEventInfo = GCS.levelEventsInfo["Pause"];
+        propertyInfos = levelEventInfo.propertiesInfo.Values.ToList();
+        levelEventInfo.propertiesInfo.Clear();
+        foreach(PropertyInfo info in propertyInfos) levelEventInfo.propertiesInfo.TryAdd(info.name, info);
         propertyInfo = new PropertyInfo(new Dictionary<string, object> {
             { "name", "ConvertSetSpeed" },
             { "type", "Export" },
