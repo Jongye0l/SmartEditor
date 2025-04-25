@@ -26,6 +26,7 @@ public class RotateScreen : Feature {
         KeyModifier.BackQuote
     ];
     public static byte changedKey;
+    private static bool is360;
 
     public RotateScreen() : base(Main.Instance, nameof(RotateScreen), true, typeof(RotateScreen), typeof(RotateSettings)) {
         settings = (RotateSettings) Setting;
@@ -98,19 +99,19 @@ public class RotateScreen : Feature {
 
     [JAPatch(typeof(CreateFloorWithCharOrAngleEditorAction), nameof(CreateFloorWithCharOrAngleEditorAction.Execute), PatchType.Prefix, false)]
     public static void CreateFloorPrefix(ref float ___angle) {
-        if(___angle == 999) return;
+        if(___angle == 999 || is360) return;
         ___angle = (___angle - data.angle + 360) % 360;
     }
 
     [JAPatch(typeof(CreateFloorWithCharOrAngleEditorAction), nameof(CreateFloorWithCharOrAngleEditorAction.Execute), PatchType.Postfix, false)]
     public static void CreateFloorPostfix(ref float ___angle) {
-        if(___angle == 999) return;
+        if(___angle == 999 || is360) return;
         ___angle = (___angle + data.angle) % 360;
     }
 
     [JAPatch(typeof(scrLevelMaker), nameof(GetAngleFromFloorCharDirectionWithCheck), PatchType.Postfix, false)]
     public static void GetAngleFromFloorCharDirectionWithCheck(bool exists, ref float __result) {
-        if(__result == 999) return;
+        if(__result == 999 || is360) return;
         if(exists) __result = (__result - data.angle + 360) % 360;
     }
 
@@ -135,6 +136,12 @@ public class RotateScreen : Feature {
             if(t.operand is MethodInfo { Name: "Angle" }) t.operand = ((Delegate) HandleMouseAngle).Method;
         return codeInstructions;
     }
+
+    [JAPatch(typeof(Create360FloorEditorAction), nameof(Create360FloorEditorAction.Execute), PatchType.Prefix, false)]
+    private static void Set360Prefix() => is360 = true;
+
+    [JAPatch(typeof(Create360FloorEditorAction), nameof(Create360FloorEditorAction.Execute), PatchType.Postfix, false)]
+    private static void Set360Postfix() => is360 = false;
 
     private static float HandleMouseAngle(Vector3 from, Vector3 to) {
         float angle = Vector3.Angle(from, to);
