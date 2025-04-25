@@ -6,6 +6,7 @@ using ADOFAI.LevelEditor.Controls;
 using JALib.Core;
 using JALib.Core.Patch;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SmartEditor;
 
@@ -46,13 +47,29 @@ public class BpmBeatCalculator() : Feature(Main.Instance, nameof(BpmBeatCalculat
             eventInfo.propertiesInfo.Clear();
             foreach(PropertyInfo info in propertyInfos) eventInfo.propertiesInfo.TryAdd(info.name, info);
         }
+        ResetPanel();
     }
 
     protected override void OnDisable() {
         LevelEventInfo levelEventInfo = GCS.levelEventsInfo["SetSpeed"];
         levelEventInfo.propertiesInfo.Remove("realBPM");
-        levelEventInfo = GCS.levelEventsInfo["Pause"];
-        levelEventInfo.propertiesInfo.Remove("durationAngle");
+        foreach(LevelEventInfo eventInfo in GCS.levelEventsInfo.Values)
+            eventInfo.propertiesInfo.Remove("durationAngle");
+        ResetPanel();
+    }
+
+    private static void ResetPanel() {
+        scnEditor editor = scnEditor.instance;
+        if(!editor) return;
+        foreach(PropertiesPanel panel in editor.settingsPanel.panelsList) Object.DestroyImmediate(panel.gameObject);
+        while(editor.settingsPanel.tabs.childCount > 0) Object.DestroyImmediate(editor.settingsPanel.tabs.GetChild(0).gameObject);
+        editor.settingsPanel.Init(GCS.settingsInfo, false);
+        foreach(PropertiesPanel panel in editor.levelEventsPanel.panelsList) Object.DestroyImmediate(panel.gameObject);
+        while(editor.levelEventsPanel.tabs.childCount > 0) Object.DestroyImmediate(editor.levelEventsPanel.tabs.GetChild(0).gameObject);
+        editor.levelEventsPanel.Init(GCS.levelEventsInfo, true);
+        editor.settingsPanel.ShowPanel(editor.settingsPanel.selectedEventType, editor.levelEventsPanel.cacheEventIndex);
+        editor.levelEventsPanel.HideAllInspectorTabs();
+        editor.levelEventsPanel.ShowInspector(false);
     }
 
     [JAPatch(typeof(PropertyControl_Text), nameof(ValidateInput), PatchType.Postfix, false)]
