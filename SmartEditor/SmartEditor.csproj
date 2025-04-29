@@ -61,6 +61,9 @@
         <Reference Include="DOTweenPro">
             <HintPath>D:\SteamLibrary\steamapps\common\A Dance of Fire and Ice\A Dance of Fire and Ice_Data\Managed\DOTweenPro.dll</HintPath>
         </Reference>
+        <Reference Include="EditorTweaks">
+          <HintPath>D:\SteamLibrary\steamapps\common\A Dance of Fire and Ice\Mods\EditorTweaks\EditorTweaks.dll</HintPath>
+        </Reference>
         <Reference Include="FlipAndRotateTiles">
           <HintPath>D:\library\FlipAndRotateTiles.dll</HintPath>
         </Reference>
@@ -515,6 +518,7 @@
         <Compile Include="FixLoad\CustomSaveState\Scope\DecoDragScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\DecorationLocationChangeScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\EventDisableChangeScope.cs" />
+        <Compile Include="FixLoad\CustomSaveState\Scope\EventMoveScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\EventsChangeScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\CreateFloorScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\Scope\CustomSaveStateScope.cs" />
@@ -533,6 +537,8 @@
         <Compile Include="FixLoad\CustomSaveState\Scope\SpeedPauseConvertScope.cs" />
         <Compile Include="FixLoad\CustomSaveState\UndoTileUpdate.cs" />
         <Compile Include="FixLoad\DeleteTileUpdate.cs" />
+        <Compile Include="FixLoad\EditorTweaksAPI.cs" />
+        <Compile Include="FixLoad\EditorTweaksPatch.cs" />
         <Compile Include="FixLoad\FixChartLoad.cs" />
         <Compile Include="FixLoad\FlipAndRotateTilesAPI.cs" />
         <Compile Include="FixLoad\FlipAndRotateTilesPatch.cs" />
