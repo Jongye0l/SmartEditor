@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace SmartEditor.FixLoad;
 
-public class DeleteTileUpdate {
+public static class DeleteTileUpdate {
 
     public static void UpdateTile(int floor, int size) {
         try {

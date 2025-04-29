@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
-public class FlipTileUpdate {
+public static class FlipTileUpdate {
     public static void UpdateTile(int floor, int size, bool horizontal) {
         try {
             scnGame game = scnGame.instance;

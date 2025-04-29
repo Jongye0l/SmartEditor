@@ -4,7 +4,7 @@ using JALib.Tools;
 
 namespace SmartEditor.FixLoad.CustomSaveState;
 
-public class FixPrivateMethod {
+public static class FixPrivateMethod {
     public static MethodInfo DeleteFloorMethod = typeof(scnEditor).Method("DeleteFloor");
     public static MethodInfo MoveCameraToFloorMethod = typeof(scnEditor).Method("MoveCameraToFloor");
     public static MethodInfo OffsetFloorIDsInEventsMethod = typeof(scnEditor).Method("OffsetFloorIDsInEvents");

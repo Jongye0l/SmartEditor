@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
-public class RotateTileUpdate {
+public static class RotateTileUpdate {
     public static void UpdateTile(int floor, int size, bool cw, bool is180) {
         try {
             scnGame game = scnGame.instance;

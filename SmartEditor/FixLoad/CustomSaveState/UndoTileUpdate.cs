@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad.CustomSaveState;
 
-public class UndoTileUpdate {
+public static class UndoTileUpdate {
     public static void UpdateTile(DefaultLevelState levelState, bool redo) {
         try {
             scnGame game = scnGame.instance;

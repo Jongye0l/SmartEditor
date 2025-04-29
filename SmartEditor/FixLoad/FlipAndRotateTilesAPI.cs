@@ -3,7 +3,7 @@ using FlipAndRotateTiles;
 
 namespace SmartEditor.FixLoad;
 
-public class FlipAndRotateTilesAPI {
+public static class FlipAndRotateTilesAPI {
     private static bool initialized;
 
     public static bool CheckMod() {

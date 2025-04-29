@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad.CustomSaveState;
 
-public class SaveStatePatch {
+public static class SaveStatePatch {
     public static FieldInfo saveStateLastFrame = SimpleReflect.Field(typeof(scnEditor), "saveStateLastFrame");
     public static MethodInfo unsavedChanges = typeof(scnEditor).Setter("unsavedChanges");
     public static List<ChangedEventCache> changedEvents = [];

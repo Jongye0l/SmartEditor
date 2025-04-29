@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
-public class PasteTileUpdate {
+public static class PasteTileUpdate {
     public static void UpdateTile() {
         try {
             scnEditor editor = scnEditor.instance;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SmartEditor.FixLoad;
 
-public class InsertTileUpdate {
+public static class InsertTileUpdate {
 
     public static void UpdateTile(int floor) {
         try {

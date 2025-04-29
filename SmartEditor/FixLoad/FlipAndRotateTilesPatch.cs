@@ -10,7 +10,7 @@ using Patches = FlipAndRotateTiles.Patches;
 
 namespace SmartEditor.FixLoad;
 
-public class FlipAndRotateTilesPatch {
+public static class FlipAndRotateTilesPatch {
     public static int customRunner;
 
     public static IEnumerable<CodeInstruction> Setup(IEnumerable<CodeInstruction> instructions, CodeInstruction code) {
