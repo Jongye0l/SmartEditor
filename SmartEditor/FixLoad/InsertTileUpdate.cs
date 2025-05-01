@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JALib.Tools;
 using UnityEngine;
 
 namespace SmartEditor.FixLoad;
@@ -33,6 +34,7 @@ public static class InsertTileUpdate {
         cur.SetTileColor(levelMaker.lm2.tilecolor);
         if(cur.isportal) {
             cur.SpawnPortalParticles();
+            cur.GetComponent<scrPortalParticles>().Invoke("Start");
             levelMaker.listFloors[floor - 1].UpdateIconSprite();
             levelMaker.listFloors[floor].UpdateIconSprite();
         }
