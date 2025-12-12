@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -70,6 +70,34 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
     [JAPatch(typeof(scrController), nameof(FailAction), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> FailAction(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> instructionList = instructions.ToList();
+        // ---- remove code C# ----
+        // foreach (scrMissIndicator scrMissIndicator in this.missesOnCurrFloor)
+        //     scrMissIndicator.StartBlinking();
+        // ---- remove code IL ----
+        // IL_01c9: ldarg.0      // this
+        // IL_01ca: ldfld        class [mscorlib]System.Collections.Generic.List`1<class scrMissIndicator> scrController::missesOnCurrFloor
+        // IL_01cf: callvirt     instance valuetype [mscorlib]System.Collections.Generic.List`1/Enumerator<!0/*class scrMissIndicator*/> class [mscorlib]System.Collections.Generic.List`1<class scrMissIndicator>::GetEnumerator()
+        // IL_01d4: stloc.s      V_5
+        // .try
+        // {
+        //   IL_01d6: br.s         IL_01e4
+        //   // start of loop, entry point: IL_01e4
+        //     IL_01d8: ldloca.s     V_5
+        //     IL_01da: call         instance !0/*class scrMissIndicator*/ valuetype [mscorlib]System.Collections.Generic.List`1/Enumerator<class scrMissIndicator>::get_Current()
+        //     IL_01df: callvirt     instance void scrMissIndicator::StartBlinking()
+        //     IL_01e4: ldloca.s     V_5
+        //     IL_01e6: call         instance bool valuetype [mscorlib]System.Collections.Generic.List`1/Enumerator<class scrMissIndicator>::MoveNext()
+        //     IL_01eb: brtrue.s     IL_01d8
+        //   // end of loop
+        //   IL_01ed: leave.s      IL_01fd
+        // } // end of .try
+        // finally
+        // {
+        //   IL_01ef: ldloca.s     V_5
+        //   IL_01f1: constrained. valuetype [mscorlib]System.Collections.Generic.List`1/Enumerator<class scrMissIndicator>
+        //   IL_01f7: callvirt     instance void [mscorlib]System.IDisposable::Dispose()
+        //   IL_01fc: endfinally
+        // } // end of finally
         for(int i = 0; i < instructionList.Count; i++) {
             if(instructionList[i].operand is not FieldInfo { Name: "missesOnCurrFloor" }) continue;
             instructionList[i + 16].labels = instructionList[i - 1].labels;
@@ -86,6 +114,15 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
     public static IEnumerable<CodeInstruction> OnLandOnPortal(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> instructionList = instructions.ToList();
         for(int i = 0; i < instructionList.Count; i++) {
+            // ---- remove code C# ----
+            // scrFlash.Flash(new Color?(Color.white.WithAlpha(0.4f)));
+            // ---- remove code IL ----
+            // IL_001c: call         valuetype [UnityEngine.CoreModule]UnityEngine.Color [UnityEngine.CoreModule]UnityEngine.Color::get_white()
+            // IL_0021: ldc.r4       0.4
+            // IL_0026: call         valuetype [UnityEngine.CoreModule]UnityEngine.Color ExtensionMethods::WithAlpha(valuetype [UnityEngine.CoreModule]UnityEngine.Color, float32)
+            // IL_002b: newobj       instance void valuetype [mscorlib]System.Nullable`1<valuetype [UnityEngine.CoreModule]UnityEngine.Color>::.ctor(!0/*valuetype [UnityEngine.CoreModule]UnityEngine.Color*/)
+            // IL_0030: ldc.r4       -1
+            // IL_0035: call         void scrFlash::Flash(valuetype [mscorlib]System.Nullable`1<valuetype [UnityEngine.CoreModule]UnityEngine.Color>, float32)
             if(instructionList[i].operand is not MethodInfo { Name: "Flash" }) continue;
             instructionList.RemoveRange(i - 5, 6);
             break;
@@ -104,25 +141,89 @@ public class BGAMod() : Feature(Main.Instance, nameof(BGAMod), patchClass: typeo
     public static IEnumerable<CodeInstruction> SetPaused(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> instructionList = instructions.ToList();
         for(int i = 0; i < instructionList.Count; i++) {
-            if(instructionList[i].operand is not MethodInfo { Name: "SetActive" }) continue;
-            instructionList.RemoveRange(i - 2, 3);
-            instructionList[i - 3] = new CodeInstruction(OpCodes.Pop);
+            // ---- remove code C# ----
+            // if ((bool) (UnityEngine.Object) this.errorMeter && this.gameworld && Persistence.hitErrorMeterSize != ErrorMeterSize.Off)
+            //     this.errorMeter.gameObject.SetActive(!value);
+            // ---- remove code IL ----
+            // IL_0012: ldarg.0      // this
+            // IL_0013: ldfld        class scrHitErrorMeter scrController::errorMeter
+            // IL_0018: call         bool [UnityEngine.CoreModule]UnityEngine.Object::op_Implicit(class [UnityEngine.CoreModule]UnityEngine.Object)
+            // IL_001d: brfalse.s    IL_0042
+            //
+            // IL_001f: ldarg.0      // this
+            // IL_0020: ldfld        bool scrController::gameworld
+            // IL_0025: brfalse.s    IL_0042
+            // IL_0027: call         valuetype ErrorMeterSize Persistence::get_hitErrorMeterSize()
+            // IL_002c: brfalse.s    IL_0042
+            //
+            // // [304 9 - 304 53]
+            // IL_002e: ldarg.0      // this
+            // IL_002f: ldfld        class scrHitErrorMeter scrController::errorMeter
+            // IL_0034: callvirt     instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
+            // IL_0039: ldarg.1      // 'value'
+            // IL_003a: ldc.i4.0
+            // IL_003b: ceq
+            // IL_003d: callvirt     instance void [UnityEngine.CoreModule]UnityEngine.GameObject::SetActive(bool)
+            if(instructionList[i].operand is not FieldInfo { Name: "errorMeter" }) continue;
+            instructionList.RemoveRange(i - 1, 16);
         }
         return instructionList;
     }
 
     [JAPatch(typeof(scrPlanet), nameof(MoveToNextFloor), PatchType.Transpiler, false)]
-    [JAPatch(typeof(TaroCutsceneScript), "DisplayText", PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> MoveToNextFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> instructionList = instructions.ToList();
+        // ---- remove code C# ----
+        // if ((bool) (UnityEngine.Object) this.controller.errorMeter)
+        //     this.controller.errorMeter.wrapperRectTransform.gameObject.SetActive(false);
+        // ---- remove code IL ----
+        // IL_027a: ldarg.0      // this
+        // IL_027b: call         instance class scrController scrPlanet::get_controller()
+        // IL_0280: ldfld        class scrHitErrorMeter scrController::errorMeter
+        // IL_0285: call         bool [UnityEngine.CoreModule]UnityEngine.Object::op_Implicit(class [UnityEngine.CoreModule]UnityEngine.Object)
+        // IL_028a: brfalse      IL_0396
+        //
+        // // [789 11 - 789 86]
+        // IL_028f: ldarg.0      // this
+        // IL_0290: call         instance class scrController scrPlanet::get_controller()
+        // IL_0295: ldfld        class scrHitErrorMeter scrController::errorMeter
+        // IL_029a: ldfld        class [UnityEngine.CoreModule]UnityEngine.RectTransform scrHitErrorMeter::wrapperRectTransform
+        // IL_029f: callvirt     instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
+        // IL_02a4: ldc.i4.0
+        // IL_02a5: callvirt     instance void [UnityEngine.CoreModule]UnityEngine.GameObject::SetActive(bool)
         for(int i = 0; i < instructionList.Count; i++) {
-            if(instructionList[i].operand is not MethodInfo { Name: "SetActive" }) continue;
-            instructionList.RemoveAt(i);
-            instructionList[i - 1] = new CodeInstruction(OpCodes.Pop);
+            if(instructionList[i].operand is not FieldInfo { Name: "errorMeter" }) continue;
+            instructionList.RemoveRange(i - 2, 12);
         }
         return instructionList;
     }
 
+    [JAPatch(typeof(TaroCutsceneScript), nameof(DisplayText), PatchType.Transpiler, false)]
+    public static IEnumerable<CodeInstruction> DisplayText(IEnumerable<CodeInstruction> instructions) {
+        List<CodeInstruction> instructionList = instructions.ToList();
+        // ---- remove code C# ----
+        // if ((bool) (UnityEngine.Object) ADOBase.controller.errorMeter)
+        //     ADOBase.controller.errorMeter.wrapperRectTransform.gameObject.SetActive(false);
+        // ---- remove code IL ----
+        // IL_016a: call         class scrController ADOBase::get_controller()
+        // IL_016f: ldfld        class scrHitErrorMeter scrController::errorMeter
+        // IL_0174: call         bool [UnityEngine.CoreModule]UnityEngine.Object::op_Implicit(class [UnityEngine.CoreModule]UnityEngine.Object)
+        // IL_0179: brfalse      IL_0275
+        //
+        // // [298 11 - 298 89]
+        // IL_017e: call         class scrController ADOBase::get_controller()
+        // IL_0183: ldfld        class scrHitErrorMeter scrController::errorMeter
+        // IL_0188: ldfld        class [UnityEngine.CoreModule]UnityEngine.RectTransform scrHitErrorMeter::wrapperRectTransform
+        // IL_018d: callvirt     instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
+        // IL_0192: ldc.i4.0
+        // IL_0193: callvirt     instance void [UnityEngine.CoreModule]UnityEngine.GameObject::SetActive(bool)
+        for(int i = 0; i < instructionList.Count; i++) {
+            if(instructionList[i].operand is not FieldInfo { Name: "errorMeter" }) continue;
+            instructionList.RemoveRange(i - 2, 10);
+        }
+        return instructionList;
+    }
+    
     [JAPatch(typeof(ffxChangeTrack), nameof(PrepFloor), PatchType.Prefix, false)]
     public static bool PrepFloor() => false;
 }

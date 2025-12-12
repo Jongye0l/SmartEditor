@@ -11,18 +11,11 @@ using Patches = FlipAndRotateTiles.Patches;
 namespace SmartEditor.FixLoad;
 
 public static class FlipAndRotateTilesPatch {
-    public static int customRunner;
-
-    public static IEnumerable<CodeInstruction> Setup(IEnumerable<CodeInstruction> instructions, CodeInstruction code) {
+    public static IEnumerable<CodeInstruction> Setup(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
-        list.InsertRange(0, [
-            new CodeInstruction(OpCodes.Ldsfld, SimpleReflect.Field(typeof(FlipAndRotateTilesPatch), "customRunner")),
-            code,
-            new CodeInstruction(OpCodes.And),
-            new CodeInstruction(OpCodes.Brfalse, list[^1].labels[0])
-        ]);
-        for(int i = 4; i < list.Count; i++) {
+        for(int i = 0; i < list.Count; i++) {
             CodeInstruction cur = list[i];
+            // remove RemakePath all calls
             if(cur.operand is MethodInfo { Name: "RemakePath" }) {
                 CodeInstruction prev = list[i - 3];
                 list[i + 1].WithLabels(prev.labels).WithBlocks(prev.blocks);
@@ -32,14 +25,30 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
-    [JAPatch(typeof(Patches.FlipSelectionPatch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> FlipSelectionPatch(IEnumerable<CodeInstruction> instructions) =>
-        Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_1));
-
     [JAPatch(typeof(scnEditor), nameof(FlipSelection), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> FlipSelection(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
+            // ---- original code(vanilla) C# ----
+            // this.RemakePath();
+            // ---- original code(patched) C# ----
+            // FlipTileUpdate.UpdateTileSelection(horizontal);
+            // ---- replaced code C# ----
+            // FlipAndRotateTilesPatch.RunFlipSelectionPatch(horizontal);
+            // FlipTileUpdate.UpdateTileSelection(horizontal);
+            // ---- original code(vanilla) code IL ----
+            // IL_0078: ldarg.0      // this
+            // IL_0079: ldc.i4.1
+            // IL_007a: ldc.i4.1
+            // IL_007b: call         instance void scnEditor::RemakePath(bool, bool)
+            // ---- original code(patched) code IL ----
+            // ldarg.1      // horizontal
+            // call         FlipTileUpdate::UpdateTileSelection(bool)
+            // ---- replaced code IL ----
+            // ldarg.1      // horizontal
+            // call         FlipAndRotateTilesPatch::RunFlipSelectionPatch(bool)
+            // ldarg.1      // horizontal
+            // call         FlipTileUpdate::UpdateTileSelection(bool)
             if(list[i].operand is MethodInfo { Name: "UpdateTileSelection" }) {
                 list.InsertRange(i, [
                     new CodeInstruction(OpCodes.Call, ((Delegate) RunFlipSelectionPatch).Method),
@@ -51,23 +60,45 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
+    [JAReversePatch(typeof(Patches.FlipSelectionPatch), "Postfix", ReversePatchType.AllCombine)]
     public static void RunFlipSelectionPatch(bool horizontal) {
-        customRunner |= 1;
-        try {
-            Patches.FlipSelectionPatch.Postfix(horizontal);
-        } finally {
-            customRunner &= ~1;
-        }
+        _ = Transpiler(null);
+        throw new NotImplementedException();
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
     }
-
-    [JAPatch(typeof(Patches.FlipFloorPatch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> FlipFloorPatch(IEnumerable<CodeInstruction> instructions) =>
-        Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_2));
 
     [JAPatch(typeof(scnEditor), nameof(FlipFloor), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> FlipFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
+            // ---- original code(vanilla) C# ----
+            // this.RemakePath();
+            // ---- original code(patched) C# ----
+            // FlipTileUpdate.UpdateTile(floor.seqID, 1, horizontal);
+            // ---- replaced code C# ----
+            // FlipAndRotateTilesPatch.RunFlipPatch(floor, horizontal, remakePatch);
+            // FlipTileUpdate.UpdateTile(floor.seqID, 1, horizontal);
+            // ---- original code(vanilla) code IL ----
+            // IL_0078: ldarg.0      // this
+            // IL_0079: ldc.i4.1
+            // IL_007a: ldc.i4.1
+            // IL_007b: call         instance void scnEditor::RemakePath(bool, bool)
+            // ---- original code(patched) code IL ----
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldarg.2      // horizontal
+            // call         FlipTileUpdate::UpdateTile(int32, int32, bool)
+            // ---- replaced code IL ----
+            // ldarg.1      // floor
+            // ldarg.2      // horizontal
+            // ldarg.3      // remakePath
+            // call         FlipAndRotateTilesPatch::RunFlipPatch(scrFloor, bool, bool)
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldarg.2      // horizontal
+            // call         FlipTileUpdate::UpdateTile(int32, int32, bool)
             if(list[i].operand is MethodInfo { Name: "UpdateTile" }) {
                 list.InsertRange(i - 5, [
                     new CodeInstruction(OpCodes.Ldarg_1),
@@ -81,23 +112,40 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
-    public static void RunFlipPatch(scrFloor floor, bool horizontal, bool remakePath) {
-        customRunner |= 2;
-        try {
-            Patches.FlipFloorPatch.Postfix(floor, horizontal, remakePath);
-        } finally {
-            customRunner &= ~2;
-        }
-    }
 
-    [JAPatch(typeof(Patches.RotateSelectionPatch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> RotateSelectionPatch(IEnumerable<CodeInstruction> instructions) =>
-        Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_4));
+    [JAReversePatch(typeof(Patches.FlipFloorPatch), "Postfix", ReversePatchType.AllCombine)]
+    public static void RunFlipPatch(scrFloor floor, bool horizontal, bool remakePath) {
+        _ = Transpiler(null);
+        throw new NotImplementedException();
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
+    }
 
     [JAPatch(typeof(scnEditor), nameof(RotateSelection), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> RotateSelection(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
+            // ---- original code(vanilla) C# ----
+            // this.RemakePath();
+            // ---- original code(patched) C# ----
+            // RotateTileUpdate.UpdateTileSelection(CW, false);
+            // ---- replaced code C# ----
+            // FlipAndRotateTilesPatch.RunRotateSelectionPatch(CW);
+            // FlipTileUpdate.UpdateTileSelection(horizontal);
+            // ---- original code(vanilla) code IL ----
+            // IL_0078: ldarg.0      // this
+            // IL_0079: ldc.i4.1
+            // IL_007a: ldc.i4.1
+            // IL_007b: call         instance void scnEditor::RemakePath(bool, bool)
+            // ---- original code(patched) code IL ----
+            // ldarg.1      // CW
+            // ldc.i4.0
+            // call         RotateTileUpdate::UpdateTileSelection(bool, bool)
+            // ---- replaced code IL ----
+            // ldarg.1      // CW
+            // call         FlipAndRotateTilesPatch::RunRotateSelectionPatch(bool)
+            // ldarg.1      // CW
+            // ldc.i4.0
+            // call         RotateTileUpdate::UpdateTileSelection(bool, bool)
             if(list[i].operand is MethodInfo { Name: "UpdateTileSelection" }) {
                 list.InsertRange(i - 1, [
                     new CodeInstruction(OpCodes.Call, ((Delegate) RunRotateSelectionPatch).Method),
@@ -109,23 +157,47 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
+    [JAReversePatch(typeof(Patches.RotateSelectionPatch), "Postfix", ReversePatchType.AllCombine)]
     public static void RunRotateSelectionPatch(bool cw) {
-        customRunner |= 4;
-        try {
-            Patches.RotateSelectionPatch.Postfix(cw);
-        } finally {
-            customRunner &= ~4;
-        }
+        _ = Transpiler(null);
+        throw new NotImplementedException();
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
     }
-
-    [JAPatch(typeof(Patches.RotateFloorPatch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> RotateFloorPatch(IEnumerable<CodeInstruction> instructions) =>
-        Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_8));
 
     [JAPatch(typeof(scnEditor), nameof(RotateFloor), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> RotateFloor(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
+            // ---- original code(vanilla) C# ----
+            // this.RemakePath();
+            // ---- original code(patched) C# ----
+            // RotateTileUpdate.UpdateTile(floor.seqID, 1, CW, false);
+            // ---- replaced code C# ----
+            // FlipAndRotateTilesPatch.RunRotatePatch(floor, CW, remakePath);
+            // RotateTileUpdate.UpdateTile(floor.seqID, 1, CW, false);
+            // ---- original code(vanilla) code IL ----
+            // IL_0078: ldarg.0      // this
+            // IL_0079: ldc.i4.1
+            // IL_007a: ldc.i4.1
+            // IL_007b: call         instance void scnEditor::RemakePath(bool, bool)
+            // ---- original code(patched) code IL ----
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldarg.2      // CW
+            // ldc.i4.0
+            // call         RotateTileUpdate::UpdateTile(int32, int32, bool, bool)
+            // ---- replaced code IL ----
+            // ldarg.1      // floor
+            // ldarg.2      // CW
+            // ldarg.3      // remakePath
+            // call         FlipAndRotateTilesPatch::RunRotatePatch(scrFloor, bool, bool)
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldarg.2      // CW
+            // ldc.i4.0
+            // call         RotateTileUpdate::UpdateTile(int32, int32, bool, bool)
             if(list[i].operand is MethodInfo { Name: "UpdateTile" }) {
                 list.InsertRange(i - 6, [
                     new CodeInstruction(OpCodes.Ldarg_1),
@@ -139,23 +211,46 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
+    [JAReversePatch(typeof(Patches.RotateFloorPatch), "Postfix", ReversePatchType.AllCombine)]
     public static void RunRotatePatch(scrFloor floor, bool cw, bool remakePath) {
-        customRunner |= 8;
-        try {
-            Patches.RotateFloorPatch.Postfix(floor, cw, remakePath);
-        } finally {
-            customRunner &= ~8;
-        }
+        _ = Transpiler(null);
+        throw new NotImplementedException();
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
     }
-
-    [JAPatch(typeof(Patches.RotateFloor180Patch), "Postfix", PatchType.Transpiler, false)]
-    public static IEnumerable<CodeInstruction> RotateFloor180Patch(IEnumerable<CodeInstruction> instructions) =>
-        Setup(instructions, new CodeInstruction(OpCodes.Ldc_I4_S, (sbyte) 16));
 
     [JAPatch(typeof(scnEditor), nameof(RotateFloor180), PatchType.Transpiler, false)]
     public static IEnumerable<CodeInstruction> RotateFloor180(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> list = instructions.ToList();
         for(int i = 0; i < list.Count; i++) {
+            // ---- original code(vanilla) C# ----
+            // this.RemakePath();
+            // ---- original code(patched) C# ----
+            // RotateTileUpdate.UpdateTile(floor.seqID, 1, false, true);
+            // ---- replaced code C# ----
+            // FlipAndRotateTilesPatch.RunRotate180Patch(floor, remakePath);
+            // RotateTileUpdate.UpdateTile(floor.seqID, 1, false, true);
+            // ---- original code(vanilla) code IL ----
+            // IL_0078: ldarg.0      // this
+            // IL_0079: ldc.i4.1
+            // IL_007a: ldc.i4.1
+            // IL_007b: call         instance void scnEditor::RemakePath(bool, bool)
+            // ---- original code(patched) code IL ----
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldc.i4.0
+            // ldc.i4.1
+            // call         RotateTileUpdate::UpdateTile(int32, int32, bool, bool)
+            // ---- replaced code IL ----
+            // ldarg.1      // floor
+            // ldarg.2      // remakePath
+            // call         FlipAndRotateTilesPatch::RunRotate180Patch(scrFloor, bool)
+            // ldarg.1      // floor
+            // ldfld        int32 scrFloor::seqID
+            // ldc.i4.1
+            // ldc.i4.0
+            // ldc.i4.1
+            // call         RotateTileUpdate::UpdateTile(int32, int32, bool, bool)
             if(list[i].operand is MethodInfo { Name: "UpdateTile" }) {
                 list.InsertRange(i - 6, [
                     new CodeInstruction(OpCodes.Ldarg_1),
@@ -168,12 +263,17 @@ public static class FlipAndRotateTilesPatch {
         return list;
     }
 
+    [JAReversePatch(typeof(Patches.RotateFloor180Patch), "Postfix", ReversePatchType.AllCombine)]
     public static void RunRotate180Patch(scrFloor floor, bool remakePath) {
-        customRunner |= 16;
-        try {
-            Patches.RotateFloor180Patch.Postfix(floor, remakePath);
-        } finally {
-            customRunner &= ~16;
-        }
+        _ = Transpiler(null);
+        throw new NotImplementedException();
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
     }
+    
+    [JAPatch(typeof(Patches.FlipSelectionPatch), "Postfix", PatchType.Prefix, false)]
+    [JAPatch(typeof(Patches.FlipFloorPatch), "Postfix", PatchType.Prefix, false)]
+    [JAPatch(typeof(Patches.RotateSelectionPatch), "Postfix", PatchType.Prefix, false)]
+    [JAPatch(typeof(Patches.RotateFloorPatch), "Postfix", PatchType.Prefix, false)]
+    [JAPatch(typeof(Patches.RotateFloor180Patch), "Postfix", PatchType.Prefix, false)]
+    public static bool PatchDisable() => false;
 }

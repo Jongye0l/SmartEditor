@@ -127,6 +127,39 @@ public static class SaveStatePatch {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
             CodeInstruction code = codes[i];
+            // ---- original code C# ----
+            // this.events.Add(this.CopyEvent(ev, id));
+            // ---- replaced code C# ----
+            // LevelEvent local = this.CopyEvent(ev, id);
+            // this.events.Add(local);
+            // SaveStatePatch.Add(local);
+            // ---- original code IL ----
+            // IL_027d: ldarg.0      // this
+            // IL_027e: call         instance class EventsArray`1<class ADOFAI.LevelEvent> scnEditor::get_events()
+            // IL_0283: ldarg.0      // this
+            // IL_0284: ldloc.s      V_5
+            // IL_0286: ldfld        class ADOFAI.LevelEvent scnEditor/'<>c__DisplayClass560_1'::ev
+            // IL_028b: ldloc.s      V_5
+            // IL_028d: ldfld        class scnEditor/'<>c__DisplayClass560_0' scnEditor/'<>c__DisplayClass560_1'::'CS$<>8__locals1'
+            // IL_0292: ldfld        int32 scnEditor/'<>c__DisplayClass560_0'::id
+            // IL_0297: call         instance class ADOFAI.LevelEvent scnEditor::CopyEvent(class ADOFAI.LevelEvent, int32)
+            // IL_029c: callvirt     instance void class EventsArray`1<class ADOFAI.LevelEvent>::Add(!0/*class ADOFAI.LevelEvent*/)
+            // ---- replaced code IL ----
+            // IL_027d: ldarg.0      // this
+            // IL_027e: call         instance class EventsArray`1<class ADOFAI.LevelEvent> scnEditor::get_events()
+            // IL_0283: ldarg.0      // this
+            // IL_0284: ldloc.s      V_5
+            // IL_0286: ldfld        class ADOFAI.LevelEvent scnEditor/'<>c__DisplayClass560_1'::ev
+            // IL_028b: ldloc.s      V_5
+            // IL_028d: ldfld        class scnEditor/'<>c__DisplayClass560_0' scnEditor/'<>c__DisplayClass560_1'::'CS$<>8__locals1'
+            // IL_0292: ldfld        int32 scnEditor/'<>c__DisplayClass560_0'::id
+            // IL_0297: call         instance class ADOFAI.LevelEvent scnEditor::CopyEvent(class ADOFAI.LevelEvent, int32)
+            // IL_029c: stloc        local(patch)
+            // IL_02a1: ldloc        local(patch)
+            // IL_02a6: callvirt     instance void class EventsArray`1<class ADOFAI.LevelEvent>::Add(!0/*class ADOFAI.LevelEvent*/)
+            // IL_02ab: ldloc        local(patch)
+            // IL_02b0: call         void SmartEditor.FixLoad.CustomSaveState::Add(class ADOFAI.LevelEvent)
+            
             if(code.opcode == OpCodes.Callvirt && typeof(EventsArray<LevelEvent>).Method(nameof(Add)) == (MethodInfo) code.operand) {
                 LocalBuilder local = generator.DeclareLocal(typeof(LevelEvent));
                 codes[i] = new CodeInstruction(OpCodes.Stloc, local) { labels = code.labels };
@@ -146,20 +179,19 @@ public static class SaveStatePatch {
     public static void UndoOrRedo(bool redo) {
         try {
             scnEditor editor = scnEditor.instance;
-            bool redo2 = redo;
             if(editor.changingState != 0) return;
-            List<LevelState> source = redo2 ? redoStates : undoStates;
+            List<LevelState> source = redo ? redoStates : undoStates;
             if(source.Count == 0) return;
             LevelState levelState = source.Last();
             using(new SaveStateScope(editor, false, false, true)) {
                 if(levelState is DefaultLevelState defaultLevelState) {
                     foreach(ChangedEventCache cache in defaultLevelState.changedEvents) {
-                        if(cache.action == ChangedEventCache.Action.Add && redo2 || cache.action == ChangedEventCache.Action.Remove && !redo2) editor.events.Add(cache.@event);
+                        if(cache.action == ChangedEventCache.Action.Add && redo || cache.action == ChangedEventCache.Action.Remove && !redo) editor.events.Add(cache.@event);
                         else editor.events.Remove(cache.@event);
                     }
-                    foreach(KeyValuePair<EventKey, EventValue> pair in defaultLevelState.changedEventValues) pair.Key.levelEvent[pair.Key.key] = redo2 ? pair.Value.newValue : pair.Value.defaultValue;
+                    foreach(KeyValuePair<EventKey, EventValue> pair in defaultLevelState.changedEventValues) pair.Key.levelEvent[pair.Key.key] = redo ? pair.Value.newValue : pair.Value.defaultValue;
                     List<float> angleData = editor.levelData.angleData;
-                    if(redo2)
+                    if(redo)
                         foreach(ChangedFloorCache cache in defaultLevelState.changedFloors) {
                             if(cache.action == ChangedFloorCache.Action.Add) {
                                 angleData.Insert(cache.index, cache.angle);
@@ -197,7 +229,7 @@ public static class SaveStatePatch {
                         editor.levelEventsPanel.ShowInspector(true, true);
                         editor.levelEventsPanel.ShowPanel(selectedDecoration.eventType);
                     }
-                    UndoTileUpdate.UpdateTile(defaultLevelState, redo2);
+                    UndoTileUpdate.UpdateTile(defaultLevelState, redo);
                     editor.propertyControlDecorationsList.RefreshItemsList(true);
                     bool reselect = false;
                     int[] selectedFloors = defaultLevelState.selectedFloors;
@@ -240,7 +272,7 @@ public static class SaveStatePatch {
                 } else if(redo) levelState.Redo();
                 else levelState.Undo();
                 source.RemoveAt(source.Count - 1);
-                if(redo2) undoStates.Add(levelState);
+                if(redo) undoStates.Add(levelState);
                 else redoStates.Add(levelState);
             }
         } catch (Exception e) {
@@ -252,6 +284,27 @@ public static class SaveStatePatch {
         List<CodeInstruction> codes = instructions.ToList();
         for(int i = 0; i < codes.Count; i++) {
             CodeInstruction code = codes[i];
+            // ---- original code C# ----
+            // this.undoStates.Clear();
+            // this.redoStates.Clear();
+            // ---- replaced code C# ----
+            // SaveStatePatch.undoStates.Clear();
+            // SaveStatePatch.redoStates.Clear();
+            // ---- original code IL ----
+            // IL_009d: ldarg.0      // this
+            // IL_009e: ldfld        class [mscorlib]System.Collections.Generic.List`1<class scnEditor/LevelState> scnEditor::undoStates
+            // IL_00a3: callvirt     instance void class [mscorlib]System.Collections.Generic.List`1<class scnEditor/LevelState>::Clear()
+            // [4352 9 - 4352 32]
+            // IL_00a8: ldarg.0      // this
+            // IL_00a9: ldfld        class [mscorlib]System.Collections.Generic.List`1<class scnEditor/LevelState> scnEditor::redoStates
+            // IL_00ae: callvirt     instance void class [mscorlib]System.Collections.Generic.List`1<class scnEditor/LevelState>::Clear()
+            // ---- replaced code IL ----
+            // IL_009d: ldsfld       class [mscorlib]System.Collections.Generic.List`1<class SmartEditor.FixLoad.CustomSaveState.LevelState> SmartEditor.FixLoad.CustomSaveState::undoStates
+            // IL_00a2: callvirt     instance void class [mscorlib]System.Collections.Generic.List`1<class SmartEditor.FixLoad.CustomSaveState.LevelState>::Clear()
+            // [4352 9 - 4352 32]
+            // IL_00a8: ldsfld       class [mscorlib]System.Collections.Generic.List`1<class SmartEditor.FixLoad.CustomSaveState.LevelState> SmartEditor.FixLoad.CustomSaveState::redoStates
+            // IL_00ad: callvirt     instance void class [mscorlib]System.Collections.Generic.List`1<class SmartEditor.FixLoad.CustomSaveState.LevelState>::Clear()
+
             if(code.operand is FieldInfo { Name: nameof(undoStates) }) {
                 codes[i - 1] = new CodeInstruction(OpCodes.Ldsfld, SimpleReflect.Field(typeof(SaveStatePatch), nameof(undoStates)));
                 codes.RemoveAt(i);

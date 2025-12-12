@@ -18,7 +18,7 @@ public class EditorTweaksPatch {
             CodeInstruction code = list[i];
             if(code.opcode != OpCodes.Newobj || code.operand is ConstructorInfo { DeclaringType.Name: "SaveStateScope" }) continue;
             list[i - 4].opcode = OpCodes.Ldarg_0;
-            list[i - 3] = new CodeInstruction(OpCodes.Newobj, AccessToolsExtensions.Constructor(typeof(EventMoveScope)));
+            list[i - 3] = new CodeInstruction(OpCodes.Newobj, SimpleReflect.Constructor(typeof(EventMoveScope)));
             list.RemoveRange(i - 2, 3);
         }
         return list;

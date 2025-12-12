@@ -170,6 +170,24 @@ public class SpeedPauseConverter() : Feature(Main.Instance, nameof(SpeedPauseCon
     private static IEnumerable<CodeInstruction> RenderControl(IEnumerable<CodeInstruction> instructions) {
         List<CodeInstruction> instructionList = instructions.ToList();
         foreach(CodeInstruction t in instructionList) {
+            // ---- original code C# ----
+            // if (!SteamIntegration.initialized)
+            //     return;
+            // ---- replaced code C# ----
+            // if (!true)
+            //     return;
+            // ---- original code IL ----
+            // IL_0385: ldsfld       bool SteamIntegration::initialized
+            // IL_038a: brtrue.s     IL_038d
+            //
+            // // [258 11 - 258 18]
+            // IL_038c: ret
+            // ---- replaced code IL ----
+            // ldc.i4.1
+            // brtrue.s     IL_038d
+            //
+            // // [258 11 - 258 18]
+            // ret
             if(t.operand is not FieldInfo field || field != SimpleReflect.Field(typeof(SteamIntegration), "initialized")) continue;
             t.opcode = OpCodes.Ldc_I4_1;
             t.operand = null;
