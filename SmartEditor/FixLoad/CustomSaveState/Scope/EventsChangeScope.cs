@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ADOFAI;
-using EditorTweaks.Patch.Timeline;
 
 namespace SmartEditor.FixLoad.CustomSaveState.Scope;
 
@@ -35,11 +33,6 @@ public class EventsChangeScope : CustomSaveStateScope {
     }
 
     public EventsChangeScope(List<LevelEvent> events) : base(false, true) => SetEvents(events);
-
-    public EventsChangeScope(TimelinePanel timelinePanel) : base(false, true) {
-        events = timelinePanel.selectedEvents.ToArray();
-        delete = true;
-    }
 
     public void SetEvents(List<LevelEvent> events) {
         this.events = events.ToArray();

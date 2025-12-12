@@ -26,7 +26,6 @@ public class FixChartLoad : Feature {
         SaveStatePatch.Patch(patcher);
         ScopePatch.Patch(patcher);
         FlipAndRotateTilesAPI.CheckMod();
-        EditorTweaksAPI.CheckMod();
     }
 
     protected override void OnGUI() {
@@ -548,7 +547,6 @@ public class FixChartLoad : Feature {
     [JAPatch(typeof(UnityModManager.ModEntry), "Load", PatchType.Postfix, false)]
     public static void ModLoadCheck() {
         FlipAndRotateTilesAPI.CheckMod();
-        EditorTweaksAPI.CheckMod();
     }
 
     private static MethodInfo GetRadiusMethod = SimpleReflect.Property(typeof(scrController), VersionControl.releaseNumber < 134 ? "startRadius" : "tileSize").GetGetMethod();
