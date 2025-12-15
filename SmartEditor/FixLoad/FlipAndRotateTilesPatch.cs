@@ -158,7 +158,7 @@ public static class FlipAndRotateTilesPatch {
     }
 
     [JAReversePatch(typeof(Patches.RotateSelectionPatch), "Postfix", ReversePatchType.AllCombine)]
-    public static void RunRotateSelectionPatch(bool cw) {
+    public static void RunRotateSelectionPatch(bool CW) {
         _ = Transpiler(null);
         throw new NotImplementedException();
         IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
@@ -212,7 +212,7 @@ public static class FlipAndRotateTilesPatch {
     }
 
     [JAReversePatch(typeof(Patches.RotateFloorPatch), "Postfix", ReversePatchType.AllCombine)]
-    public static void RunRotatePatch(scrFloor floor, bool cw, bool remakePath) {
+    public static void RunRotatePatch(scrFloor floor, bool CW, bool remakePath) {
         _ = Transpiler(null);
         throw new NotImplementedException();
         IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) => Setup(instructions);
