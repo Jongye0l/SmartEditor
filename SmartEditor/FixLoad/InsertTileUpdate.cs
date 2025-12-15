@@ -315,6 +315,8 @@ public static class InsertTileUpdate {
                 stripeFloor.SetColor((stripeFloor.seqID - startFloor) % 2 == 0 ? color1 : color2);
             }
         } else curFloor.SetColor(isJustThisTile ? curFloorTrack.color1 : prevFloor.floorRenderer.deselectedColor);
+        
+        if(prevFloor.floorIcon is FloorIcon.Swirl or FloorIcon.SwirlCW) prevFloor.UpdateIconSprite();
     }
     
     public static void CalculateFloorEntryTimes(int floor) {
