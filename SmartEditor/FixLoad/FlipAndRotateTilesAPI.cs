@@ -1,5 +1,6 @@
 ﻿using System;
 using FlipAndRotateTiles;
+using UnityModManagerNet;
 
 namespace SmartEditor.FixLoad;
 
@@ -8,6 +9,7 @@ public static class FlipAndRotateTilesAPI {
 
     public static bool CheckMod() {
         try {
+            if(!CheckEnabledUmm()) return false;
             bool enabled = CheckEnabled();
             if(!initialized) {
                 Main.Instance.Log("FlipAndRotateTiles Mod Founded! Patching...");
@@ -18,6 +20,12 @@ public static class FlipAndRotateTilesAPI {
         } catch (Exception) {
             return false;
         }
+    }
+
+    private static bool CheckEnabledUmm() {
+        foreach(UnityModManager.ModEntry modEntry in UnityModManager.modEntries) 
+            if(modEntry.Info.Id == "FlipAndRotateTiles") return modEntry.Enabled;
+        return false;
     }
 
     private static bool CheckEnabled() => FlipAndRotateTiles.Main.ModEntry.Enabled;
